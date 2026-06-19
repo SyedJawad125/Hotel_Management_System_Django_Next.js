@@ -458,7 +458,7 @@ const navSections = [
     label: 'MAIN',
     items: [
       { icon: '📊', label: 'Dashboard', key: 'dashboard', path: '/admindashboard' },
-      { icon: '🏛️', label: 'Halls & Venues', key: 'halls', path: '/admin/halls' },
+      { icon: '🏛️', label: 'Halls & Venues', key: 'halls', path: '/halls' },
       { icon: '📅', label: 'Event Bookings', key: 'bookings', path: '/admin/bookings' },
     ],
   },
