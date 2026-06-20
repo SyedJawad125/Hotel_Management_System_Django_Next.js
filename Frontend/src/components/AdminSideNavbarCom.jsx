@@ -465,8 +465,9 @@ const navSections = [
   {
     label: 'MANAGEMENT',
     items: [
-      { icon: '👥', label: 'Customers', key: 'customers', path: '/admin/customers' },
-      { icon: '👤', label: 'System Users', key: 'users', path: '/admin/users' },
+      { icon: '👥', label: 'Customers', key: 'customers', path: '/customers' },
+      { icon: '👤', label: 'System Users', key: 'users', path: '/system_users' },
+      { icon: '👤', label: 'Employees', key: 'employees', path: '/employees' },
       { icon: '🛡️', label: 'Roles', key: 'roles', path: '/RolesPage' },
       { icon: '📈', label: 'Reports & Analytics', key: 'reports', path: '/admin/reports' },
     ],

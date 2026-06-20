@@ -5,11 +5,11 @@ import 'react-toastify/dist/ReactToastify.css';
 import AxiosInstance from "@/components/AxiosInstance";
 import { AuthContext } from '@/components/AuthContext';
 import {
-  Search, Plus, Trash2, X, Users2, Mail, Phone, ShieldCheck,
-  Download, ChevronLeft, ChevronRight, UserRound, Power, ImagePlus,
+  Search, Plus, Pencil, Trash2, X, Users2, Phone, Mail,
+  Wallet, CalendarCheck2, Download, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 
-/* ── Design tokens — Gulf Hotel gold-on-ivory (matches HallsVenuesCom / CustomersCom) ── */
+/* ── Design tokens — Gulf Hotel gold-on-ivory (matches HallsVenuesCom) ── */
 const gold = '#C6A43F';
 const goldDeep = '#9C7F2C';
 const ink = '#26231D';
@@ -22,26 +22,6 @@ const displayFont = "'Cormorant Garamond', serif";
 const bodyFont = "'DM Sans', sans-serif";
 
 /* ── Small building blocks ───────────────────────────────────────────── */
-
-const StatusPill = ({ status, deactivated }) => {
-  const s = (status || (deactivated ? 'Deactivated' : 'Active')).toLowerCase();
-  let bg = '#EAF4EA', fg = '#3D7A45', bd = 'rgba(61,122,69,0.18)', label = 'Active';
-  if (s === 'invited') { bg = '#FBF1DC'; fg = goldDeep; bd = line; label = 'Invited'; }
-  if (s === 'deactivated') { bg = '#FBEAEA'; fg = '#B23B3B'; bd = 'rgba(178,59,59,0.18)'; label = 'Deactivated'; }
-  if (s === 'active') { label = 'Active'; }
-
-  return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: 6,
-      padding: '4px 11px', borderRadius: 999, fontSize: 11, fontWeight: 700,
-      letterSpacing: '0.04em', textTransform: 'uppercase', fontFamily: bodyFont,
-      background: bg, color: fg, border: `1px solid ${bd}`,
-    }}>
-      <span style={{ width: 6, height: 6, borderRadius: '50%', background: fg }} />
-      {label}
-    </span>
-  );
-};
 
 const FormGroup = ({ label, required, children, hint }) => (
   <div style={{ marginBottom: 16 }}>
@@ -90,7 +70,7 @@ function Modal({ title, subtitle, onClose, children, wide }) {
     >
       <div style={{
         background: '#FFFFFF', borderRadius: 22, width: '100%',
-        maxWidth: wide ? 640 : 520, maxHeight: '88vh', overflowY: 'auto',
+        maxWidth: wide ? 640 : 480, maxHeight: '88vh', overflowY: 'auto',
         boxShadow: '0 30px 60px -15px rgba(38,35,29,0.35)',
         border: `1px solid ${line}`,
       }}>
@@ -122,7 +102,7 @@ function Modal({ title, subtitle, onClose, children, wide }) {
 
 /* ── Main component ──────────────────────────────────────────────────── */
 
-const EmployeeCom = () => {
+const CustomersCom = () => {
   const { permissions = {} } = useContext(AuthContext);
 
   const [records, setRecords] = useState([]);
@@ -133,32 +113,22 @@ const EmployeeCom = () => {
   const recordsPerPage = 10;
   const totalPages = Math.max(1, Math.ceil(count / recordsPerPage));
 
-  const [roles, setRoles] = useState([]);
-
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [togglingId, setTogglingId] = useState(null);
 
-  const emptyForm = {
-    first_name: '', last_name: '', username: '', mobile: '', address: '', role: '',
-  };
+  const emptyForm = { name_en: '', name_ar: '', mobile: '', email: '' };
   const [form, setForm] = useState(emptyForm);
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
-    fetchEmployees();
+    fetchCustomers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
-  useEffect(() => {
-    fetchRoles();
-  }, []);
-
-  const fetchEmployees = async () => {
+  const fetchCustomers = async () => {
     setLoading(true);
     try {
-      const res = await AxiosInstance.get('/api/user/v1/employee/', {
+      const res = await AxiosInstance.get('/api/hotel/v1/customer/', {
         params: {
           limit: recordsPerPage,
           offset: (currentPage - 1) * recordsPerPage,
@@ -177,24 +147,13 @@ const EmployeeCom = () => {
         setCount(total ?? list.length);
       } else {
         console.error('Unexpected response structure:', res);
-        toast.error('Could not load employees');
+        toast.error('Could not load customers');
       }
     } catch (error) {
       console.error('Error occurred:', error);
-      toast.error('Error fetching employees');
+      toast.error('Error fetching customers');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchRoles = async () => {
-    try {
-      const res = await AxiosInstance.get('/api/user/v1/role/', { params: { limit: 100, offset: 0 } });
-      const payload = res?.data;
-      const list = Array.isArray(payload?.data) ? payload.data : payload?.data?.data;
-      if (Array.isArray(list)) setRoles(list);
-    } catch (error) {
-      console.error('Error fetching roles:', error);
     }
   };
 
@@ -202,27 +161,35 @@ const EmployeeCom = () => {
     if (!Array.isArray(records)) return [];
     const q = searchTerm.trim().toLowerCase();
     if (!q) return records;
-    return records.filter((e) => {
-      const idMatch = e.id?.toString() === q;
-      const nameMatch = (e.full_name || `${e.first_name || ''} ${e.last_name || ''}`).toLowerCase().includes(q);
-      const emailMatch = e.email?.toLowerCase().includes(q);
-      const mobileMatch = e.mobile?.toLowerCase().includes(q);
-      const roleMatch = (e.role?.name || '').toLowerCase().includes(q);
-      return idMatch || nameMatch || emailMatch || mobileMatch || roleMatch;
+    return records.filter((c) => {
+      const idMatch = c.id?.toString() === q;
+      const nameMatch = `${c.name_en || ''} ${c.name_ar || ''}`.toLowerCase().includes(q);
+      const mobileMatch = c.mobile?.toLowerCase().includes(q);
+      const emailMatch = c.email?.toLowerCase().includes(q);
+      return idMatch || nameMatch || mobileMatch || emailMatch;
     });
   }, [records, searchTerm]);
 
-  const totalEmployees = count;
-  const activeCount = records.filter((e) => (e.status || '').toLowerCase() === 'active').length;
-  const invitedCount = records.filter((e) => (e.status || '').toLowerCase() === 'invited').length;
-  const deactivatedCount = records.filter((e) => (e.status || '').toLowerCase() === 'deactivated').length;
+  const totalCustomers = count;
+  const totalBookings = records.reduce((sum, c) => sum + (c.bookings_count || 0), 0);
+  const totalSpent = records.reduce((sum, c) => sum + Number(c.total_spent || 0), 0);
 
   /* ── Modal handlers ── */
 
   const openCreate = () => {
+    setEditingCustomer(null);
     setForm(emptyForm);
-    setImageFile(null);
-    setImagePreview(null);
+    setModalOpen(true);
+  };
+
+  const openEdit = (customer) => {
+    setEditingCustomer(customer);
+    setForm({
+      name_en: customer.name_en || '',
+      name_ar: customer.name_ar || '',
+      mobile: customer.mobile || '',
+      email: customer.email || '',
+    });
     setModalOpen(true);
   };
 
@@ -231,90 +198,68 @@ const EmployeeCom = () => {
     setModalOpen(false);
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files?.[0] || null;
-    setImageFile(file);
-    if (file) setImagePreview(URL.createObjectURL(file));
-  };
-
-  const saveEmployee = async (e) => {
+  const saveCustomer = async (e) => {
     e.preventDefault();
-    if (!form.first_name.trim() || !form.last_name.trim() || !form.username.trim()) {
-      toast.error('First name, last name, and email/username are required');
+    if (!form.name_en.trim()) {
+      toast.error('Name (English) is required');
       return;
     }
 
     setSaving(true);
     try {
-      const formData = new FormData();
-      formData.append('first_name', form.first_name);
-      formData.append('last_name', form.last_name);
-      formData.append('username', form.username);
-      if (form.mobile) formData.append('mobile', form.mobile);
-      if (form.address) formData.append('address', form.address);
-      if (form.role) formData.append('role', form.role);
-      if (imageFile) formData.append('profile_image', imageFile);
+      const payload = {
+        name_en: form.name_en,
+        name_ar: form.name_ar,
+        mobile: form.mobile,
+        email: form.email,
+      };
 
-      await AxiosInstance.post('/api/user/v1/employee/', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      toast.success('Employee invited successfully');
+      if (editingCustomer) {
+        await AxiosInstance.patch(`/api/hotel/v1/customer/?id=${editingCustomer.id}`, payload);
+        toast.success('Customer updated successfully');
+      } else {
+        await AxiosInstance.post('/api/hotel/v1/customer/', payload);
+        toast.success('Customer added successfully');
+      }
       setModalOpen(false);
       setCurrentPage(1);
-      fetchEmployees();
+      fetchCustomers();
     } catch (error) {
-      console.error('Error saving employee:', error);
-      const msg = error?.response?.data?.message || error?.response?.data?.data || 'Error creating employee';
-      toast.error(typeof msg === 'string' ? msg : 'Error creating employee');
+      console.error('Error saving customer:', error);
+      const msg = error?.response?.data?.message || error?.response?.data?.data || 'Error saving customer';
+      toast.error(typeof msg === 'string' ? msg : 'Error saving customer');
     } finally {
       setSaving(false);
     }
   };
 
-  const toggleStatus = async (employee) => {
-    const action = (employee.status || '').toLowerCase() === 'deactivated' ? 'reactivate' : 'deactivate';
-    if (!window.confirm(`Are you sure you want to ${action} "${employee.full_name}"?`)) return;
-
-    setTogglingId(employee.id);
+  const deleteCustomer = async (customer) => {
+    if (!window.confirm(`Remove "${customer.name_en}"? This cannot be undone.`)) return;
     try {
-      await AxiosInstance.delete(`/api/user/v1/toggle/?id=${employee.id}`);
-      toast.success(`Employee ${action}d successfully`);
-      fetchEmployees();
-    } catch (error) {
-      const msg = error?.response?.data?.message;
-      toast.error(typeof msg === 'string' ? msg : `Error trying to ${action} employee`);
-    } finally {
-      setTogglingId(null);
-    }
-  };
-
-  const deleteEmployee = async (employee) => {
-    if (!window.confirm(`Permanently remove "${employee.full_name}"? This deletes their account entirely and cannot be undone.`)) return;
-    try {
-      const res = await AxiosInstance.delete(`/api/user/v1/employee/?id=${employee.id}`);
+      const res = await AxiosInstance.delete(`/api/hotel/v1/customer/?id=${customer.id}`);
       if (res) {
-        toast.success('Employee deleted successfully');
+        toast.success('Customer deleted successfully');
         setCurrentPage(1);
-        fetchEmployees();
+        fetchCustomers();
       }
     } catch (error) {
       const msg = error?.response?.data?.message;
-      toast.error(typeof msg === 'string' ? msg : 'Error deleting employee');
+      toast.error(typeof msg === 'string' ? msg : 'This customer has bookings and cannot be deleted');
     }
   };
 
   const exportCSV = () => {
     if (!filteredRecords.length) {
-      toast.error('No employees to export');
+      toast.error('No customers to export');
       return;
     }
-    const headers = ['ID', 'Full Name', 'Email', 'Mobile', 'Role', 'Status'];
+    const headers = ['ID', 'Name (EN)', 'Name (AR)', 'Mobile', 'Email', 'Bookings', 'Total Spent'];
     const escape = (val) => {
       const s = val === null || val === undefined ? '' : String(val);
       return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
     };
-    const rows = filteredRecords.map((e) => [
-      e.id, e.full_name, e.email, e.mobile, e.role?.name || '', e.status || (e.deactivated ? 'Deactivated' : 'Active'),
+    const rows = filteredRecords.map((c) => [
+      c.id, c.name_en, c.name_ar, c.mobile, c.email, c.bookings_count ?? 0, c.total_spent ?? 0,
     ]);
     const csv = [headers, ...rows].map((row) => row.map(escape).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -322,17 +267,12 @@ const EmployeeCom = () => {
     const link = document.createElement('a');
     const stamp = new Date().toISOString().slice(0, 10);
     link.href = url;
-    link.download = `employees-export-${stamp}.csv`;
+    link.download = `customers-export-${stamp}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     toast.success('CSV exported');
-  };
-
-  const initials = (e) => {
-    const name = e.full_name || `${e.first_name || ''} ${e.last_name || ''}`.trim() || '?';
-    return name.split(' ').filter(Boolean).map((w) => w[0]).join('').toUpperCase().slice(0, 2);
   };
 
   /* ── Render ── */
@@ -347,10 +287,10 @@ const EmployeeCom = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 18, marginBottom: 30 }}>
           <div>
             <div style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: gold, fontWeight: 700, marginBottom: 8 }}>
-              Staff Management
+              Guest Management
             </div>
             <h1 style={{ fontFamily: displayFont, fontSize: 38, color: ink, fontWeight: 600, lineHeight: 1.1 }}>
-              Employees
+              Customers
             </h1>
           </div>
 
@@ -368,7 +308,7 @@ const EmployeeCom = () => {
               Export CSV
             </button>
 
-            {permissions.create_employee && (
+            {permissions.create_customer && (
               <button
                 onClick={openCreate}
                 style={{
@@ -382,7 +322,7 @@ const EmployeeCom = () => {
                 onMouseLeave={(e) => { e.currentTarget.style.transform = ''; }}
               >
                 <Plus size={16} color={gold} />
-                New Employee
+                New Customer
               </button>
             )}
           </div>
@@ -391,10 +331,9 @@ const EmployeeCom = () => {
         {/* Stat strip */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 26 }}>
           {[
-            { label: 'Total Employees', value: totalEmployees, icon: Users2 },
-            { label: 'Active', value: activeCount, icon: ShieldCheck, accent: '#3D7A45' },
-            { label: 'Invited', value: invitedCount, icon: Mail, accent: goldDeep },
-            { label: 'Deactivated', value: deactivatedCount, icon: Power, accent: '#B23B3B' },
+            { label: 'Total Customers', value: totalCustomers, icon: Users2 },
+            { label: 'Total Bookings', value: totalBookings, icon: CalendarCheck2, accent: '#3D7A45' },
+            { label: 'Total Spent', value: `SAR ${totalSpent.toLocaleString()}`, icon: Wallet, accent: goldDeep },
           ].map(({ label, value, icon: Icon, accent }) => (
             <div key={label} style={{
               background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 16,
@@ -418,7 +357,7 @@ const EmployeeCom = () => {
             <Search size={17} color="#A39C8A" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
             <input
               type="text"
-              placeholder="Search by name, email, mobile, or role…"
+              placeholder="Search by name, mobile, or email…"
               value={searchTerm}
               onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
               style={{
@@ -435,10 +374,10 @@ const EmployeeCom = () => {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '70px 0' }}>
             <div style={{
               width: 40, height: 40, border: `3px solid ${line}`, borderTopColor: gold,
-              borderRadius: '50%', animation: 'ec-spin 0.8s linear infinite',
+              borderRadius: '50%', animation: 'cc-spin 0.8s linear infinite',
             }} />
-            <style>{`@keyframes ec-spin { to { transform: rotate(360deg); } }`}</style>
-            <p style={{ marginTop: 16, color: '#A39C8A', fontSize: 13 }}>Loading employees…</p>
+            <style>{`@keyframes cc-spin { to { transform: rotate(360deg); } }`}</style>
+            <p style={{ marginTop: 16, color: '#A39C8A', fontSize: 13 }}>Loading customers…</p>
           </div>
         )}
 
@@ -449,10 +388,10 @@ const EmployeeCom = () => {
             overflow: 'hidden', boxShadow: shadowCard,
           }}>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 880 }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 840 }}>
                 <thead>
                   <tr style={{ background: ivory, borderBottom: `1px solid ${line}` }}>
-                    {['Employee', 'Email', 'Mobile', 'Role', 'Status', ''].map((h, i) => (
+                    {['Customer', 'Mobile', 'Email', 'Bookings', 'Total Spent', ''].map((h, i) => (
                       <th key={i} style={{
                         textAlign: i === 5 ? 'right' : 'left', padding: '14px 18px',
                         fontSize: 10.5, letterSpacing: '0.08em', textTransform: 'uppercase',
@@ -462,85 +401,69 @@ const EmployeeCom = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredRecords.map((e, idx) => (
+                  {filteredRecords.map((c, idx) => (
                     <tr
-                      key={e.id}
+                      key={c.id}
                       style={{
                         borderBottom: idx === filteredRecords.length - 1 ? 'none' : `1px solid ${lineSoft}`,
                         transition: 'background 0.15s',
                       }}
-                      onMouseEnter={(ev) => { ev.currentTarget.style.background = '#FCFAF4'; }}
-                      onMouseLeave={(ev) => { ev.currentTarget.style.background = 'transparent'; }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = '#FCFAF4'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
                       <td style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          {e.profile_image ? (
-                            <img
-                              src={e.profile_image}
-                              alt={e.full_name}
-                              style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: `1px solid ${line}`, flexShrink: 0 }}
-                            />
-                          ) : (
-                            <div style={{
-                              width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
-                              background: 'rgba(198,164,63,0.12)', border: `1px solid ${line}`,
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              fontFamily: displayFont, fontSize: 14, fontWeight: 700, color: goldDeep,
-                            }}>
-                              {initials(e)}
-                            </div>
-                          )}
-                          <div style={{ fontFamily: displayFont, fontSize: 17, fontWeight: 600, color: ink }}>
-                            {e.full_name || `${e.first_name || ''} ${e.last_name || ''}`.trim()}
+                          <div style={{
+                            width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
+                            background: 'rgba(198,164,63,0.12)', border: `1px solid ${line}`,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontFamily: displayFont, fontSize: 16, fontWeight: 700, color: goldDeep,
+                          }}>
+                            {(c.name_en || '?').charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <div style={{ fontFamily: displayFont, fontSize: 17, fontWeight: 600, color: ink }}>{c.name_en}</div>
+                            {c.name_ar && <div style={{ fontSize: 12, color: '#A39C8A' }}>{c.name_ar}</div>}
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 12.5, color: ink }}>
-                        {e.email ? (
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <Mail size={13} color="#A39C8A" /> {e.email}
-                          </span>
-                        ) : <span style={{ color: '#C8C0AC' }}>—</span>}
-                      </td>
                       <td style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
-                        {e.mobile ? (
+                        {c.mobile ? (
                           <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <Phone size={13} color="#A39C8A" /> {e.mobile}
+                            <Phone size={13} color="#A39C8A" /> {c.mobile}
                           </span>
                         ) : <span style={{ color: '#C8C0AC' }}>—</span>}
                       </td>
-                      <td style={{ padding: '14px 18px' }}>
-                        {e.role?.name ? (
-                          <span style={{
-                            fontSize: 11.5, color: goldDeep, background: 'rgba(198,164,63,0.12)',
-                            border: `1px solid ${line}`, borderRadius: 999, padding: '4px 11px', fontWeight: 600,
-                          }}>{e.role.name}</span>
-                        ) : <span style={{ color: '#C8C0AC', fontSize: 13 }}>—</span>}
+                      <td style={{ padding: '14px 18px', fontSize: 12.5, color: ink }}>
+                        {c.email ? (
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <Mail size={13} color="#A39C8A" /> {c.email}
+                          </span>
+                        ) : <span style={{ color: '#C8C0AC' }}>—</span>}
                       </td>
-                      <td style={{ padding: '14px 18px' }}>
-                        <StatusPill status={e.status} deactivated={e.deactivated} />
+                      <td style={{ padding: '14px 18px', fontSize: 13.5, color: ink, fontWeight: 600 }}>{c.bookings_count ?? 0}</td>
+                      <td style={{ padding: '14px 18px', fontSize: 13.5, color: goldDeep, fontWeight: 600 }}>
+                        SAR {Number(c.total_spent || 0).toLocaleString()}
                       </td>
                       <td style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                          {permissions.toggle_employee && (
+                          {permissions.update_customer && (
                             <button
-                              onClick={() => toggleStatus(e)}
-                              disabled={togglingId === e.id}
-                              title={(e.status || '').toLowerCase() === 'deactivated' ? 'Reactivate' : 'Deactivate'}
+                              onClick={() => openEdit(c)}
+                              title="Update"
                               style={{
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 width: 34, height: 34, borderRadius: 9,
                                 background: 'rgba(198,164,63,0.10)', border: `1px solid ${line}`,
-                                color: goldDeep, cursor: togglingId === e.id ? 'not-allowed' : 'pointer',
-                                opacity: togglingId === e.id ? 0.5 : 1,
+                                color: goldDeep, cursor: 'pointer',
                               }}
                             >
-                              <Power size={14} />
+                              <Pencil size={14} />
                             </button>
                           )}
-                          {permissions.delete_employee && (
+                          {permissions.delete_customer && (
                             <button
-                              onClick={() => deleteEmployee(e)}
+                              onClick={() => deleteCustomer(c)}
                               title="Delete"
                               style={{
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -567,7 +490,7 @@ const EmployeeCom = () => {
                 padding: '14px 20px', borderTop: `1px solid ${lineSoft}`, background: ivory,
               }}>
                 <span style={{ fontSize: 12, color: '#A39C8A' }}>
-                  Page {currentPage} of {totalPages} · {count} employee{count !== 1 ? 's' : ''}
+                  Page {currentPage} of {totalPages} · {count} customer{count !== 1 ? 's' : ''}
                 </span>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <button
@@ -610,13 +533,13 @@ const EmployeeCom = () => {
               width: 64, height: 64, borderRadius: '50%', background: ivory,
               display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px',
             }}>
-              <UserRound size={28} color={gold} />
+              <Users2 size={28} color={gold} />
             </div>
-            <h3 style={{ fontFamily: displayFont, fontSize: 21, color: ink, marginBottom: 6 }}>No employees found</h3>
+            <h3 style={{ fontFamily: displayFont, fontSize: 21, color: ink, marginBottom: 6 }}>No customers found</h3>
             <p style={{ color: '#A39C8A', fontSize: 13.5, marginBottom: 22 }}>
-              {searchTerm ? 'Try a different search term' : 'Invite your first employee to get started'}
+              {searchTerm ? 'Try a different search term' : 'Add your first customer to get started'}
             </p>
-            {permissions.create_employee && !searchTerm && (
+            {permissions.create_customer && !searchTerm && (
               <button
                 onClick={openCreate}
                 style={{
@@ -626,100 +549,54 @@ const EmployeeCom = () => {
                 }}
               >
                 <Plus size={16} color={gold} />
-                New Employee
+                New Customer
               </button>
             )}
           </div>
         )}
       </div>
 
-      {/* Create modal */}
+      {/* Create / Edit modal */}
       {modalOpen && (
         <Modal
-          title="New Employee"
-          subtitle="An invitation email will be sent so they can set their password"
+          title={editingCustomer ? 'Update Customer' : 'New Customer'}
+          subtitle={editingCustomer ? `Editing "${editingCustomer.name_en}"` : 'Add a guest profile'}
           onClose={closeModal}
-          wide
         >
-          <form onSubmit={saveEmployee}>
+          <form onSubmit={saveCustomer}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              <FormGroup label="First Name" required>
+              <FormGroup label="Name (English)" required>
                 <TextField
-                  value={form.first_name}
-                  onChange={(e) => setForm({ ...form, first_name: e.target.value })}
-                  placeholder="Sarah"
+                  value={form.name_en}
+                  onChange={(e) => setForm({ ...form, name_en: e.target.value })}
+                  placeholder="Full name"
                 />
               </FormGroup>
-              <FormGroup label="Last Name" required>
+              <FormGroup label="Name (Arabic)">
                 <TextField
-                  value={form.last_name}
-                  onChange={(e) => setForm({ ...form, last_name: e.target.value })}
-                  placeholder="Al-Faisal"
+                  value={form.name_ar}
+                  onChange={(e) => setForm({ ...form, name_ar: e.target.value })}
+                  placeholder="الاسم"
+                  dir="rtl"
                 />
               </FormGroup>
             </div>
 
-            <FormGroup label="Email" required hint="Used as both username and login email">
+            <FormGroup label="Mobile">
+              <TextField
+                value={form.mobile}
+                onChange={(e) => setForm({ ...form, mobile: e.target.value })}
+                placeholder="+966501234567"
+              />
+            </FormGroup>
+
+            <FormGroup label="Email">
               <TextField
                 type="email"
-                value={form.username}
-                onChange={(e) => setForm({ ...form, username: e.target.value })}
-                placeholder="sarah@hotel.com"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="email@example.com"
               />
-            </FormGroup>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              <FormGroup label="Mobile">
-                <TextField
-                  value={form.mobile}
-                  onChange={(e) => setForm({ ...form, mobile: e.target.value })}
-                  placeholder="+966501234567"
-                />
-              </FormGroup>
-              <FormGroup label="Role">
-                <select
-                  style={inputStyle}
-                  value={form.role}
-                  onChange={(e) => setForm({ ...form, role: e.target.value })}
-                >
-                  <option value="">No role assigned</option>
-                  {roles.map((r) => (
-                    <option key={r.id} value={r.id}>{r.name}</option>
-                  ))}
-                </select>
-              </FormGroup>
-            </div>
-
-            <FormGroup label="Address">
-              <TextField
-                value={form.address}
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-                placeholder="Street, City"
-              />
-            </FormGroup>
-
-            <FormGroup label="Profile Image">
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                <div style={{
-                  width: 56, height: 56, borderRadius: '50%', flexShrink: 0,
-                  border: `1px dashed ${line}`, background: ivory,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
-                }}>
-                  {imagePreview ? (
-                    <img src={imagePreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    <ImagePlus size={18} color="#C8C0AC" />
-                  )}
-                </div>
-                <label style={{
-                  cursor: 'pointer', fontSize: 12.5, fontWeight: 600, color: goldDeep,
-                  background: 'rgba(198,164,63,0.10)', border: `1px solid ${line}`,
-                  borderRadius: 9, padding: '9px 16px',
-                }}>
-                  {imagePreview ? 'Change Image' : 'Upload Image'}
-                  <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
-                </label>
-              </div>
             </FormGroup>
 
             <button
@@ -732,7 +609,7 @@ const EmployeeCom = () => {
                 letterSpacing: '0.02em',
               }}
             >
-              {saving ? 'Sending Invite…' : 'Send Invitation'}
+              {saving ? 'Saving…' : editingCustomer ? 'Save Changes' : 'Add Customer'}
             </button>
           </form>
         </Modal>
@@ -741,4 +618,4 @@ const EmployeeCom = () => {
   );
 };
 
-export default EmployeeCom;
+export default CustomersCom;
