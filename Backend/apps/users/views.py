@@ -759,6 +759,12 @@ class EmployeeView(BaseView):
         send_email.delay(USER_DELETE_EMAIL_TEMP, [resp_data.get('email')], context)
 
 
+# ⭐ ADD THIS PATCH METHOD FOR UPDATES
+    @permission_required([UPDATE_USER])
+    def patch(self, request):
+        return super().patch_(request)
+    
+    
 class EmployeeToggleView(APIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = EmployeeSerializer
