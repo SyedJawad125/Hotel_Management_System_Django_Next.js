@@ -15,15 +15,19 @@ from utils.enums import *
 from utils.permission_enums import *
 
 
-from .models import Customer, Hall, Booking, ActivityLog, revenue_report, customer_report
+from .models import Customer, Hall, Booking, ActivityLog, Payment, HallPricing, BookingService, HallAmenity, revenue_report, customer_report
 from .serializers import (
     CustomerSerializer, CustomerListingSerializer,
     HallSerializer, HallListingSerializer,
     BookingSerializer, BookingListingSerializer,
     ActivityLogSerializer,
     RevenueReportRowSerializer, CustomerReportRowSerializer,
+    PaymentSerializer, PaymentListingSerializer,
+    HallPricingSerializer, HallPricingListingSerializer,
+    BookingServiceSerializer, BookingServiceListingSerializer,
+    HallAmenitySerializer, HallAmenityListingSerializer,
 )
-from .filters import CustomerFilter, HallFilter, BookingFilter, ActivityLogFilter
+from .filters import CustomerFilter, HallFilter, BookingFilter, ActivityLogFilter, PaymentFilter, HallPricingFilter, BookingServiceFilter, HallAmenityFilter
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -278,6 +282,174 @@ class CustomerReportView(APIView):
                 'rows': serialized,
                 'count': len(serialized),
             }), status=status.HTTP_200_OK)
+        except Exception as e:
+            print(str(e))
+            return Response(create_response(str(e)), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# ─────────────────────────────────────────────────────────────────────
+# PAYMENT
+# ─────────────────────────────────────────────────────────────────────
+class PaymentView(BaseView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = PaymentSerializer
+    filterset_class = PaymentFilter
+    list_serializer = PaymentListingSerializer
+
+    @permission_required([CREATE_PAYMENT])
+    def post(self, request):
+        return super().post_(request)
+
+    @permission_required([READ_PAYMENT])
+    def get(self, request):
+        return super().get_(request)
+
+    @permission_required([UPDATE_PAYMENT])
+    def patch(self, request):
+        return super().patch_(request)
+
+    @permission_required([DELETE_PAYMENT])
+    def delete(self, request):
+        try:
+            if request.query_params.get('id'):
+                instance = self.serializer_class.Meta.model.objects.filter(
+                    deleted=False, id=request.query_params.get('id', None)
+                ).first()
+                if instance:
+                    instance.deleted = True
+                    instance.save()
+                    serialized_resp = self.serializer_class(instance).data
+                    return Response(create_response(SUCCESSFUL, serialized_resp, 1), status=status.HTTP_200_OK)
+                else:
+                    return Response(create_response(NOT_FOUND), status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response(create_response(ID_NOT_PROVIDED), status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(str(e))
+            return Response(create_response(str(e)), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# ─────────────────────────────────────────────────────────────────────
+# HALL PRICING
+# ─────────────────────────────────────────────────────────────────────
+class HallPricingView(BaseView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = HallPricingSerializer
+    filterset_class = HallPricingFilter
+    list_serializer = HallPricingListingSerializer
+
+    @permission_required([CREATE_HALL_PRICING])
+    def post(self, request):
+        return super().post_(request)
+
+    @permission_required([READ_HALL_PRICING])
+    def get(self, request):
+        return super().get_(request)
+
+    @permission_required([UPDATE_HALL_PRICING])
+    def patch(self, request):
+        return super().patch_(request)
+
+    @permission_required([DELETE_HALL_PRICING])
+    def delete(self, request):
+        try:
+            if request.query_params.get('id'):
+                instance = self.serializer_class.Meta.model.objects.filter(
+                    deleted=False, id=request.query_params.get('id', None)
+                ).first()
+                if instance:
+                    instance.deleted = True
+                    instance.save()
+                    serialized_resp = self.serializer_class(instance).data
+                    return Response(create_response(SUCCESSFUL, serialized_resp, 1), status=status.HTTP_200_OK)
+                else:
+                    return Response(create_response(NOT_FOUND), status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response(create_response(ID_NOT_PROVIDED), status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(str(e))
+            return Response(create_response(str(e)), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# ─────────────────────────────────────────────────────────────────────
+# BOOKING SERVICE
+# ─────────────────────────────────────────────────────────────────────
+class BookingServiceView(BaseView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = BookingServiceSerializer
+    filterset_class = BookingServiceFilter
+    list_serializer = BookingServiceListingSerializer
+
+    @permission_required([CREATE_BOOKING_SERVICE])
+    def post(self, request):
+        return super().post_(request)
+
+    @permission_required([READ_BOOKING_SERVICE])
+    def get(self, request):
+        return super().get_(request)
+
+    @permission_required([UPDATE_BOOKING_SERVICE])
+    def patch(self, request):
+        return super().patch_(request)
+
+    @permission_required([DELETE_BOOKING_SERVICE])
+    def delete(self, request):
+        try:
+            if request.query_params.get('id'):
+                instance = self.serializer_class.Meta.model.objects.filter(
+                    deleted=False, id=request.query_params.get('id', None)
+                ).first()
+                if instance:
+                    instance.deleted = True
+                    instance.save()
+                    serialized_resp = self.serializer_class(instance).data
+                    return Response(create_response(SUCCESSFUL, serialized_resp, 1), status=status.HTTP_200_OK)
+                else:
+                    return Response(create_response(NOT_FOUND), status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response(create_response(ID_NOT_PROVIDED), status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(str(e))
+            return Response(create_response(str(e)), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# ─────────────────────────────────────────────────────────────────────
+# HALL AMENITY
+# ─────────────────────────────────────────────────────────────────────
+class HallAmenityView(BaseView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = HallAmenitySerializer
+    filterset_class = HallAmenityFilter
+    list_serializer = HallAmenityListingSerializer
+
+    @permission_required([CREATE_HALL_AMENITY])
+    def post(self, request):
+        return super().post_(request)
+
+    @permission_required([READ_HALL_AMENITY])
+    def get(self, request):
+        return super().get_(request)
+
+    @permission_required([UPDATE_HALL_AMENITY])
+    def patch(self, request):
+        return super().patch_(request)
+
+    @permission_required([DELETE_HALL_AMENITY])
+    def delete(self, request):
+        try:
+            if request.query_params.get('id'):
+                instance = self.serializer_class.Meta.model.objects.filter(
+                    deleted=False, id=request.query_params.get('id', None)
+                ).first()
+                if instance:
+                    instance.deleted = True
+                    instance.save()
+                    serialized_resp = self.serializer_class(instance).data
+                    return Response(create_response(SUCCESSFUL, serialized_resp, 1), status=status.HTTP_200_OK)
+                else:
+                    return Response(create_response(NOT_FOUND), status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response(create_response(ID_NOT_PROVIDED), status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             print(str(e))
             return Response(create_response(str(e)), status=status.HTTP_500_INTERNAL_SERVER_ERROR)

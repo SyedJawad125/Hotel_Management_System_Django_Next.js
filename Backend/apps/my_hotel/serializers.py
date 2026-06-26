@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from utils.enums import CANCELLED
-from .models import Customer, Hall, Booking, ActivityLog
+from .models import Customer, Hall, Booking, ActivityLog, Payment, HallPricing, BookingService, HallAmenity
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -173,3 +173,110 @@ class RevenueReportRowSerializer(serializers.Serializer):
 class CustomerReportRowSerializer(serializers.Serializer):
     customer_name = serializers.CharField()
     bookings_in_period = serializers.IntegerField()
+
+
+# ─────────────────────────────────────────────────────────────────────
+# PAYMENT
+# ─────────────────────────────────────────────────────────────────────
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['booking_code'] = instance.booking.booking_code if instance.booking else None
+        data['payment_method_display'] = instance.get_payment_method_display()
+        return data
+
+
+class PaymentListingSerializer(serializers.ModelSerializer):
+    booking_code = serializers.CharField(source='booking.booking_code', read_only=True)
+
+    class Meta:
+        model = Payment
+        fields = ['id', 'booking', 'booking_code', 'amount', 'payment_method', 'payment_date', 'notes', 'created_at']
+
+
+# ─────────────────────────────────────────────────────────────────────
+# HALL PRICING
+# ─────────────────────────────────────────────────────────────────────
+class HallPricingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HallPricing
+        fields = '__all__'
+
+    def validate(self, attrs):
+        hall = attrs.get('hall')
+        time_slot = attrs.get('time_slot')
+        valid_from = attrs.get('valid_from')
+
+        if hall and time_slot and valid_from:
+            clashing = HallPricing.objects.filter(
+                hall=hall, time_slot=time_slot, valid_from=valid_from, deleted=False
+            )
+            if self.instance:
+                clashing = clashing.exclude(id=self.instance.id)
+            if clashing.exists():
+                raise serializers.ValidationError(
+                    'Pricing for this hall, time slot, and valid_from date already exists'
+                )
+        return attrs
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['hall_name_en'] = instance.hall.name_en if instance.hall else None
+        data['time_slot_display'] = instance.get_time_slot_display()
+        return data
+
+
+class HallPricingListingSerializer(serializers.ModelSerializer):
+    hall_name_en = serializers.CharField(source='hall.name_en', read_only=True)
+
+    class Meta:
+        model = HallPricing
+        fields = ['id', 'hall', 'hall_name_en', 'time_slot', 'base_price', 'valid_from', 'valid_until', 'created_at']
+
+
+# ─────────────────────────────────────────────────────────────────────
+# BOOKING SERVICE
+# ─────────────────────────────────────────────────────────────────────
+class BookingServiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookingService
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['booking_code'] = instance.booking.booking_code if instance.booking else None
+        return data
+
+
+class BookingServiceListingSerializer(serializers.ModelSerializer):
+    booking_code = serializers.CharField(source='booking.booking_code', read_only=True)
+
+    class Meta:
+        model = BookingService
+        fields = ['id', 'booking', 'booking_code', 'service_name_en', 'service_name_ar', 'cost', 'notes', 'created_at']
+
+
+# ─────────────────────────────────────────────────────────────────────
+# HALL AMENITY
+# ─────────────────────────────────────────────────────────────────────
+class HallAmenitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HallAmenity
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['hall_name_en'] = instance.hall.name_en if instance.hall else None
+        return data
+
+
+class HallAmenityListingSerializer(serializers.ModelSerializer):
+    hall_name_en = serializers.CharField(source='hall.name_en', read_only=True)
+
+    class Meta:
+        model = HallAmenity
+        fields = ['id', 'hall', 'hall_name_en', 'name_en', 'name_ar', 'description_en', 'description_ar', 'created_at']

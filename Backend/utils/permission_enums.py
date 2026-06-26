@@ -77,3 +77,27 @@ DELETE_BOOKING = 'delete_booking'
 READ_ACTIVITY_LOG = 'read_activity_log'
 READ_DASHBOARD = 'read_dashboard'
 READ_REPORTS = 'read_reports'
+
+# Payment
+CREATE_PAYMENT = 'create_payment'
+READ_PAYMENT = 'read_payment'
+UPDATE_PAYMENT = 'update_payment'
+DELETE_PAYMENT = 'delete_payment'
+
+# Hall Pricing
+CREATE_HALL_PRICING = 'create_hall_pricing'
+READ_HALL_PRICING = 'read_hall_pricing'
+UPDATE_HALL_PRICING = 'update_hall_pricing'
+DELETE_HALL_PRICING = 'delete_hall_pricing'
+
+# Booking Service
+CREATE_BOOKING_SERVICE = 'create_booking_service'
+READ_BOOKING_SERVICE = 'read_booking_service'
+UPDATE_BOOKING_SERVICE = 'update_booking_service'
+DELETE_BOOKING_SERVICE = 'delete_booking_service'
+
+# Hall Amenity
+CREATE_HALL_AMENITY = 'create_hall_amenity'
+READ_HALL_AMENITY = 'read_hall_amenity'
+UPDATE_HALL_AMENITY = 'update_hall_amenity'
+DELETE_HALL_AMENITY = 'delete_hall_amenity'
