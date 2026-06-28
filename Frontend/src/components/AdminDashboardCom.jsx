@@ -1,200 +1,542 @@
-import React from 'react';
-import { Bar } from 'react-chartjs-2';
-import 'chart.js/auto';
-import { TrendingUp, ShoppingCart, Users, Package, DollarSign, Clock, CheckCircle, Truck } from 'lucide-react';
+'use client';
+import React, { useEffect, useState, useContext } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import AxiosInstance from "@/components/AxiosInstance";
+import { AuthContext } from '@/components/AuthContext';
+import {
+  Calendar, Users, DoorOpen, DollarSign, TrendingUp,
+  Clock, CheckCircle, XCircle, AlertCircle, MapPin,
+  CreditCard, Building2, CalendarDays, ArrowUpRight, ArrowDownRight,
+} from 'lucide-react';
 
-const AdminPage = () => {
-  const chartData = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June'],
-    datasets: [
-      {
-        label: 'Sales ($)',
-        data: [12000, 19000, 15000, 22000, 18000, 25000],
-        backgroundColor: 'rgba(59, 130, 246, 0.8)',
-        borderColor: 'rgba(59, 130, 246, 1)',
-        borderWidth: 2,
-        borderRadius: 8,
-      },
-    ],
+/* ── Design tokens — Gulf Hotel gold-on-ivory ───────────────────────── */
+const gold = '#C6A43F';
+const goldDeep = '#9C7F2C';
+const ink = '#26231D';
+const ivory = '#FBF9F4';
+const line = 'rgba(198,164,63,0.22)';
+const lineSoft = 'rgba(198,164,63,0.12)';
+const shadowCard = '0 10px 30px -12px rgba(38,35,29,0.10)';
+
+const displayFont = "'Cormorant Garamond', serif";
+const bodyFont = "'DM Sans', sans-serif";
+
+const AdminDashboardCom = () => {
+  const { permissions = {} } = useContext(AuthContext);
+
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalBookings: 0,
+    totalRevenue: 0,
+    totalHalls: 0,
+    occupiedHalls: 0,
+    availableHalls: 0,
+    totalCustomers: 0,
+    totalPayments: 0,
+    pendingBookings: 0,
+    confirmedBookings: 0,
+    cancelledBookings: 0,
+  });
+  const [recentBookings, setRecentBookings] = useState([]);
+  const [hallOccupancy, setHallOccupancy] = useState([]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    try {
+      // Fetch bookings
+      const bookingsRes = await AxiosInstance.get('/api/hotel/v1/booking/', { params: { limit: 100 } });
+      const bookings = bookingsRes?.data?.data || bookingsRes?.data?.data?.data || [];
+
+      // Fetch halls
+      const hallsRes = await AxiosInstance.get('/api/hotel/v1/hall/', { params: { limit: 100 } });
+      const halls = hallsRes?.data?.data || hallsRes?.data?.data?.data || [];
+
+      // Fetch payments
+      const paymentsRes = await AxiosInstance.get('/api/hotel/v1/payment/', { params: { limit: 100 } });
+      const payments = paymentsRes?.data?.data || paymentsRes?.data?.data?.data || [];
+
+      // Calculate stats
+      const totalBookings = bookings.length;
+      const totalRevenue = bookings.reduce((sum, b) => sum + Number(b.total || 0), 0);
+      const totalHalls = halls.length;
+      const occupiedHalls = halls.filter(h => h.occupied).length;
+      const availableHalls = totalHalls - occupiedHalls;
+      const totalCustomers = new Set(bookings.map(b => b.customer)).size;
+      const totalPayments = payments.length;
+      const pendingBookings = bookings.filter(b => b.status === 'pending').length;
+      const confirmedBookings = bookings.filter(b => b.status === 'confirmed').length;
+      const cancelledBookings = bookings.filter(b => b.status === 'cancelled').length;
+
+      setStats({
+        totalBookings,
+        totalRevenue,
+        totalHalls,
+        occupiedHalls,
+        availableHalls,
+        totalCustomers,
+        totalPayments,
+        pendingBookings,
+        confirmedBookings,
+        cancelledBookings,
+      });
+
+      // Recent bookings (last 5)
+      setRecentBookings(bookings.slice(0, 5));
+
+      // Hall occupancy data
+      setHallOccupancy(halls.map(h => ({
+        name: h.name_en,
+        occupied: h.occupied,
+        occupiedDates: h.occupied_dates,
+        bookingCount: h.booking_count || 0,
+      })));
+
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      toast.error('Error loading dashboard data');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        grid: {
-          color: 'rgba(148, 163, 184, 0.1)',
-        },
-        ticks: {
-          color: '#94a3b8',
-        },
-      },
-      x: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-          color: '#94a3b8',
-        },
-      },
-    },
-  };
-
-  const stats = [
-    { title: 'Total Revenue', value: '$111,000', change: '+12.5%', icon: DollarSign, color: 'from-blue-500 to-blue-600', bgColor: 'from-blue-900/20 to-blue-950/30', borderColor: 'border-blue-700/30' },
-    { title: 'Total Orders', value: '1,234', change: '+8.2%', icon: ShoppingCart, color: 'from-emerald-500 to-emerald-600', bgColor: 'from-emerald-900/20 to-emerald-950/30', borderColor: 'border-emerald-700/30' },
-    { title: 'Customers', value: '856', change: '+15.3%', icon: Users, color: 'from-purple-500 to-purple-600', bgColor: 'from-purple-900/20 to-purple-950/30', borderColor: 'border-purple-700/30' },
-    { title: 'Products', value: '342', change: '+4.1%', icon: Package, color: 'from-amber-500 to-amber-600', bgColor: 'from-amber-900/20 to-amber-950/30', borderColor: 'border-amber-700/30' },
-  ];
-
-  const recentOrders = [
-    { id: '001', customer: 'John Doe', status: 'Shipped', total: '$150.00', statusColor: 'emerald', icon: Truck },
-    { id: '002', customer: 'Jane Smith', status: 'Processing', total: '$200.00', statusColor: 'amber', icon: Clock },
-    { id: '003', customer: 'Mike Johnson', status: 'Delivered', total: '$250.00', statusColor: 'blue', icon: CheckCircle },
-    { id: '004', customer: 'Sarah Williams', status: 'Processing', total: '$180.00', statusColor: 'amber', icon: Clock },
-    { id: '005', customer: 'Tom Brown', status: 'Shipped', total: '$320.00', statusColor: 'emerald', icon: Truck },
-  ];
-
-  const getStatusColor = (color) => {
-    const colors = {
-      emerald: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-      amber: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-      blue: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+  const getStatusConfig = (status) => {
+    const configs = {
+      confirmed: { color: '#3D7A45', bg: '#EAF4EA', icon: CheckCircle, label: 'Confirmed' },
+      pending: { color: '#B8860B', bg: '#FEF7E6', icon: Clock, label: 'Pending' },
+      cancelled: { color: '#B23B3B', bg: '#FBEAEA', icon: XCircle, label: 'Cancelled' },
     };
-    return colors[color] || colors.amber;
+    return configs[status] || configs.pending;
   };
+
+  const StatCard = ({ title, value, icon: Icon, color, trend, trendUp }) => (
+    <div style={{
+      background: '#FFFFFF',
+      border: `1px solid ${line}`,
+      borderRadius: 16,
+      padding: '20px 24px',
+      boxShadow: shadowCard,
+      transition: 'all 0.2s',
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <span style={{ fontSize: 11, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#A39C8A', fontWeight: 600 }}>
+            {title}
+          </span>
+        </div>
+        <div style={{
+          width: 40, height: 40, borderRadius: 10,
+          background: color ? `${color}15` : `${gold}15`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <Icon size={20} color={color || gold} />
+        </div>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
+        <div style={{ fontFamily: displayFont, fontSize: 32, fontWeight: 600, color: ink }}>
+          {typeof value === 'number' ? value.toLocaleString() : value}
+        </div>
+        {trend && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 4,
+            fontSize: 12, fontWeight: 600,
+            color: trendUp ? '#3D7A45' : '#B23B3B',
+          }}>
+            {trendUp ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+            {trend}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  if (loading) {
+    return (
+      <div style={{ width: '100%', minHeight: '100vh', background: '#F6F3EC', fontFamily: bodyFont, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{
+            width: 48, height: 48, border: `3px solid ${line}`, borderTopColor: gold,
+            borderRadius: '50%', animation: 'spin 0.8s linear infinite',
+          }} />
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          <p style={{ marginTop: 16, color: '#A39C8A', fontSize: 14 }}>Loading dashboard…</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 overflow-auto">
-      {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl p-8 mb-8 shadow-2xl shadow-blue-500/20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative z-10">
-          <h1 className="text-4xl font-bold text-white mb-3">Welcome to Admin Dashboard</h1>
-          <p className="text-white/90 text-lg mb-2">
-            Complete control over your E-Commerce platform
-          </p>
-          <p className="text-white/80 text-sm">
-            Monitor sales, manage orders, and track your business growth in real-time
+    <div style={{ width: '100%', minHeight: '100%', background: '#F6F3EC', fontFamily: bodyFont }}>
+      <ToastContainer position="top-right" autoClose={3000} theme="light" className="mt-16" />
+
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '36px 28px 60px' }}>
+
+        {/* Header */}
+        <div style={{ marginBottom: 36 }}>
+          <div style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: gold, fontWeight: 700, marginBottom: 8 }}>
+            Overview
+          </div>
+          <h1 style={{ fontFamily: displayFont, fontSize: 42, color: ink, fontWeight: 600, lineHeight: 1.1 }}>
+            Hotel Management Dashboard
+          </h1>
+          <p style={{ color: '#A39C8A', fontSize: 14, marginTop: 8 }}>
+            Real-time insights into your hotel operations
           </p>
         </div>
-        <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-        <div className="absolute -left-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-      </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {stats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <div
-              key={index}
-              className={`bg-gradient-to-br ${stat.bgColor} backdrop-blur-sm border ${stat.borderColor} rounded-xl p-6 hover:border-opacity-60 transition-all duration-300 hover:transform hover:scale-105`}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-slate-400 text-sm font-medium">{stat.title}</span>
-                <div className={`p-3 bg-gradient-to-br ${stat.color} rounded-lg shadow-lg`}>
-                  <Icon className="w-6 h-6 text-white" />
+        {/* Stats Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 18, marginBottom: 32 }}>
+          <StatCard
+            title="Total Bookings"
+            value={stats.totalBookings}
+            icon={Calendar}
+            color="#3B82F6"
+            trend="+12%"
+            trendUp={true}
+          />
+          <StatCard
+            title="Total Revenue"
+            value={`SAR ${stats.totalRevenue.toLocaleString()}`}
+            icon={DollarSign}
+            color="#3D7A45"
+            trend="+18%"
+            trendUp={true}
+          />
+          <StatCard
+            title="Total Halls"
+            value={stats.totalHalls}
+            icon={DoorOpen}
+            color={gold}
+          />
+          <StatCard
+            title="Occupied Halls"
+            value={stats.occupiedHalls}
+            icon={MapPin}
+            color="#B23B3B"
+          />
+          <StatCard
+            title="Available Halls"
+            value={stats.availableHalls}
+            icon={CheckCircle}
+            color="#3D7A45"
+          />
+          <StatCard
+            title="Total Customers"
+            value={stats.totalCustomers}
+            icon={Users}
+            color="#8B5CF6"
+          />
+          <StatCard
+            title="Total Payments"
+            value={stats.totalPayments}
+            icon={CreditCard}
+            color="#06B6D4"
+          />
+          <StatCard
+            title="Pending Bookings"
+            value={stats.pendingBookings}
+            icon={Clock}
+            color="#B8860B"
+          />
+        </div>
+
+        {/* Booking Status Overview */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 18, marginBottom: 32 }}>
+          <div style={{
+            background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 16,
+            padding: 24, boxShadow: shadowCard,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+              <div style={{
+                width: 44, height: 44, borderRadius: 12,
+                background: '#EAF4EA', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <CheckCircle size={22} color="#3D7A45" />
+              </div>
+              <div>
+                <div style={{ fontSize: 11, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#A39C8A', fontWeight: 600 }}>
+                  Confirmed
+                </div>
+                <div style={{ fontFamily: displayFont, fontSize: 28, fontWeight: 600, color: '#3D7A45' }}>
+                  {stats.confirmedBookings}
                 </div>
               </div>
-              <div className="flex items-end justify-between">
-                <p className="text-3xl font-bold text-white">{stat.value}</p>
-                <span className="text-emerald-400 text-sm font-semibold flex items-center gap-1">
-                  <TrendingUp className="w-4 h-4" />
-                  {stat.change}
-                </span>
-              </div>
             </div>
-          );
-        })}
-      </div>
-
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Sales Overview Chart */}
-        <div className="bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6 hover:border-slate-600/60 transition-all">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-1">Sales Overview</h2>
-              <p className="text-slate-400 text-sm">Monthly revenue trend</p>
-            </div>
-            <div className="p-3 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg shadow-lg">
-              <TrendingUp className="w-6 h-6 text-white" />
+            <div style={{ height: 8, background: '#EAF4EA', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{
+                height: '100%', width: `${(stats.confirmedBookings / stats.totalBookings) * 100 || 0}%`,
+                background: '#3D7A45', borderRadius: 4, transition: 'width 0.3s',
+              }} />
             </div>
           </div>
-          <div className="h-72">
-            <Bar data={chartData} options={chartOptions} />
+
+          <div style={{
+            background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 16,
+            padding: 24, boxShadow: shadowCard,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+              <div style={{
+                width: 44, height: 44, borderRadius: 12,
+                background: '#FEF7E6', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Clock size={22} color="#B8860B" />
+              </div>
+              <div>
+                <div style={{ fontSize: 11, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#A39C8A', fontWeight: 600 }}>
+                  Pending
+                </div>
+                <div style={{ fontFamily: displayFont, fontSize: 28, fontWeight: 600, color: '#B8860B' }}>
+                  {stats.pendingBookings}
+                </div>
+              </div>
+            </div>
+            <div style={{ height: 8, background: '#FEF7E6', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{
+                height: '100%', width: `${(stats.pendingBookings / stats.totalBookings) * 100 || 0}%`,
+                background: '#B8860B', borderRadius: 4, transition: 'width 0.3s',
+              }} />
+            </div>
+          </div>
+
+          <div style={{
+            background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 16,
+            padding: 24, boxShadow: shadowCard,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+              <div style={{
+                width: 44, height: 44, borderRadius: 12,
+                background: '#FBEAEA', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <XCircle size={22} color="#B23B3B" />
+              </div>
+              <div>
+                <div style={{ fontSize: 11, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#A39C8A', fontWeight: 600 }}>
+                  Cancelled
+                </div>
+                <div style={{ fontFamily: displayFont, fontSize: 28, fontWeight: 600, color: '#B23B3B' }}>
+                  {stats.cancelledBookings}
+                </div>
+              </div>
+            </div>
+            <div style={{ height: 8, background: '#FBEAEA', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{
+                height: '100%', width: `${(stats.cancelledBookings / stats.totalBookings) * 100 || 0}%`,
+                background: '#B23B3B', borderRadius: 4, transition: 'width 0.3s',
+              }} />
+            </div>
           </div>
         </div>
 
-        {/* Recent Orders */}
-        <div className="bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6 hover:border-slate-600/60 transition-all">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-1">Recent Orders</h2>
-              <p className="text-slate-400 text-sm">Latest customer transactions</p>
+        {/* Main Content Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: 24, marginBottom: 32 }}>
+          {/* Recent Bookings */}
+          <div style={{
+            background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 18,
+            padding: 24, boxShadow: shadowCard,
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <div>
+                <h2 style={{ fontFamily: displayFont, fontSize: 22, color: ink, fontWeight: 600, marginBottom: 4 }}>
+                  Recent Bookings
+                </h2>
+                <p style={{ fontSize: 13, color: '#A39C8A' }}>Latest reservations</p>
+              </div>
+              <div style={{
+                width: 40, height: 40, borderRadius: 10,
+                background: `${gold}15`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <CalendarDays size={20} color={gold} />
+              </div>
             </div>
-            <div className="p-3 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-lg shadow-lg">
-              <ShoppingCart className="w-6 h-6 text-white" />
-            </div>
-          </div>
 
-          <div className="space-y-3">
-            {recentOrders.map((order) => {
-              const StatusIcon = order.icon;
-              return (
-                <div
-                  key={order.id}
-                  className="bg-slate-900/50 border border-slate-700/30 rounded-lg p-4 hover:border-slate-600/50 transition-all hover:bg-slate-800/50"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <span className="text-white font-bold text-sm">{order.id}</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {recentBookings.length > 0 ? recentBookings.map((booking) => {
+                const statusConfig = getStatusConfig(booking.status);
+                const StatusIcon = statusConfig.icon;
+                return (
+                  <div
+                    key={booking.id}
+                    style={{
+                      background: ivory, border: `1px solid ${lineSoft}`, borderRadius: 12,
+                      padding: 16, transition: 'all 0.2s',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                        <div style={{
+                          width: 44, height: 44, borderRadius: 10,
+                          background: statusConfig.bg, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          <StatusIcon size={20} color={statusConfig.color} />
+                        </div>
+                        <div>
+                          <div style={{ fontFamily: displayFont, fontSize: 16, fontWeight: 600, color: ink }}>
+                            {booking.hall_name_en || booking.hall?.name_en || 'Unknown Hall'}
+                          </div>
+                          <div style={{ fontSize: 12, color: '#A39C8A', marginTop: 2 }}>
+                            {booking.customer_name || booking.customer?.name_en || 'Unknown Customer'}
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white font-semibold mb-1">{order.customer}</p>
-                        <div className="flex items-center gap-2">
-                          <StatusIcon className="w-3.5 h-3.5 text-slate-400" />
-                          <span className={`text-xs px-2 py-1 rounded-full border ${getStatusColor(order.statusColor)}`}>
-                            {order.status}
-                          </span>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: ink }}>
+                          SAR {Number(booking.total || 0).toLocaleString()}
+                        </div>
+                        <div style={{ fontSize: 11, color: '#A39C8A', marginTop: 2 }}>
+                          {booking.date || '—'}
                         </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-white font-bold text-lg">{order.total}</p>
+                  </div>
+                );
+              }) : (
+                <div style={{ textAlign: 'center', padding: 40, color: '#A39C8A' }}>
+                  No recent bookings
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Hall Occupancy */}
+          <div style={{
+            background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 18,
+            padding: 24, boxShadow: shadowCard,
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <div>
+                <h2 style={{ fontFamily: displayFont, fontSize: 22, color: ink, fontWeight: 600, marginBottom: 4 }}>
+                  Hall Occupancy
+                </h2>
+                <p style={{ fontSize: 13, color: '#A39C8A' }}>Current hall status</p>
+              </div>
+              <div style={{
+                width: 40, height: 40, borderRadius: 10,
+                background: `${gold}15`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Building2 size={20} color={gold} />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {hallOccupancy.length > 0 ? hallOccupancy.map((hall) => (
+                <div
+                  key={hall.name}
+                  style={{
+                    background: ivory, border: `1px solid ${lineSoft}`, borderRadius: 12,
+                    padding: 16, transition: 'all 0.2s',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                      <div style={{
+                        width: 44, height: 44, borderRadius: 10,
+                        background: hall.occupied ? '#FBEAEA' : '#EAF4EA',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        <DoorOpen size={20} color={hall.occupied ? '#B23B3B' : '#3D7A45'} />
+                      </div>
+                      <div>
+                        <div style={{ fontFamily: displayFont, fontSize: 16, fontWeight: 600, color: ink }}>
+                          {hall.name}
+                        </div>
+                        <div style={{ fontSize: 11, color: '#A39C8A', marginTop: 2 }}>
+                          {hall.bookingCount} booking{hall.bookingCount !== 1 ? 's' : ''}
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{
+                        fontSize: 11, fontWeight: 600,
+                        color: hall.occupied ? '#B23B3B' : '#3D7A45',
+                        background: hall.occupied ? '#FBEAEA' : '#EAF4EA',
+                        padding: '4px 10px', borderRadius: 999,
+                      }}>
+                        {hall.occupied ? 'Occupied' : 'Available'}
+                      </div>
+                      {hall.occupied && hall.occupiedDates && (
+                        <div style={{ fontSize: 11, color: '#A39C8A', marginTop: 4 }}>
+                          {hall.occupiedDates}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
-              );
-            })}
+              )) : (
+                <div style={{ textAlign: 'center', padding: 40, color: '#A39C8A' }}>
+                  No halls found
+                </div>
+              )}
+            </div>
           </div>
-
-          <button className="w-full mt-4 py-3 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-slate-600/50 text-white rounded-lg transition-all font-medium">
-            View All Orders
-          </button>
         </div>
-      </div>
 
-      {/* Footer */}
-      <footer className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6 text-center">
-        <p className="text-slate-400">
-          © 2024 E-Commerce Admin Dashboard • All Rights Reserved
-        </p>
-        <p className="text-slate-500 text-sm mt-2">
-          Built with ❤️ for modern business management
-        </p>
-      </footer>
+        {/* Quick Actions */}
+        <div style={{
+          background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 18,
+          padding: 24, boxShadow: shadowCard,
+        }}>
+          <h2 style={{ fontFamily: displayFont, fontSize: 22, color: ink, fontWeight: 600, marginBottom: 16 }}>
+            Quick Actions
+          </h2>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <button
+              onClick={() => window.location.href = '/admin/bookings'}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                background: ink, color: '#FBF6E8', border: 'none',
+                padding: '12px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+                cursor: 'pointer', transition: 'all 0.2s',
+              }}
+            >
+              <Calendar size={16} color={gold} />
+              View Bookings
+            </button>
+            <button
+              onClick={() => window.location.href = '/admin/halls'}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                background: '#FFFFFF', color: ink, border: `1px solid ${line}`,
+                padding: '12px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+                cursor: 'pointer', transition: 'all 0.2s',
+              }}
+            >
+              <DoorOpen size={16} color={gold} />
+              Manage Halls
+            </button>
+            <button
+              onClick={() => window.location.href = '/admin/payments'}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                background: '#FFFFFF', color: ink, border: `1px solid ${line}`,
+                padding: '12px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+                cursor: 'pointer', transition: 'all 0.2s',
+              }}
+            >
+              <CreditCard size={16} color={gold} />
+              View Payments
+            </button>
+            <button
+              onClick={() => window.location.href = '/admin/customers'}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                background: '#FFFFFF', color: ink, border: `1px solid ${line}`,
+                padding: '12px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+                cursor: 'pointer', transition: 'all 0.2s',
+              }}
+            >
+              <Users size={16} color={gold} />
+              Manage Customers
+            </button>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 };
 
-export default AdminPage;
+export default AdminDashboardCom;
