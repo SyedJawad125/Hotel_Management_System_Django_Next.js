@@ -356,8 +356,8 @@ const Login = () => {
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new Event('authStateChanged'));
         }
-        console.log('Login successful, redirecting to admindashboard...');
-        router.push('/admindashboard');
+        console.log('Login successful, redirecting to admin dashboard...');
+        router.push('/admin/dashboard');
       } else {
         setError(response.data.message || 'Login failed. Please try again.');
       }
