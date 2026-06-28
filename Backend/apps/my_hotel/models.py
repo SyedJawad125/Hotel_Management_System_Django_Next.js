@@ -293,10 +293,10 @@ class Booking(TimeUserStamps):
 
     date           = models.DateField()
     time_slot      = models.CharField(          # ← NEW
-        max_length=20,
-        choices=TIME_SLOT_CHOICES,
-        default=TIME_SLOT_MORNING,
-        help_text='Event time slot: Morning Shift, Afternoon Shift, or Night Shift',
+                                max_length=20,
+                                choices=TIME_SLOT_CHOICES,
+                                default=TIME_SLOT_MORNING,
+                                help_text='Event time slot: Morning Shift, Afternoon Shift, or Night Shift',
     )
     status         = models.CharField(max_length=20, choices=status_choices, default=PENDING)
     total          = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(0)])

@@ -119,6 +119,62 @@ permissions = [
                module_label='Reports & Analytics', description='User can see reports'),
     Permission(name='Read Reports', code_name='read_reports', module_name='Reports',
                module_label='Reports & Analytics', description='User can read/generate reports'),
+
+    # ─────────────────────────────────────────────────────────────
+    # PAYMENT
+    # ─────────────────────────────────────────────────────────────
+    Permission(name='Show Payment', code_name='show_payment', module_name='Payment',
+               module_label='Payment Management', description='User can see payment'),
+    Permission(name='Create Payment', code_name='create_payment', module_name='Payment',
+               module_label='Payment Management', description='User can create payment'),
+    Permission(name='Read Payment', code_name='read_payment', module_name='Payment',
+               module_label='Payment Management', description='User can read payment'),
+    Permission(name='Update Payment', code_name='update_payment', module_name='Payment',
+               module_label='Payment Management', description='User can update payment'),
+    Permission(name='Delete Payment', code_name='delete_payment', module_name='Payment',
+               module_label='Payment Management', description='User can delete payment'),
+
+    # ─────────────────────────────────────────────────────────────
+    # HALL PRICING
+    # ─────────────────────────────────────────────────────────────
+    Permission(name='Show Hall Pricing', code_name='show_hall_pricing', module_name='HallPricing',
+               module_label='Hall Pricing', description='User can see hall pricing'),
+    Permission(name='Create Hall Pricing', code_name='create_hall_pricing', module_name='HallPricing',
+               module_label='Hall Pricing', description='User can create hall pricing'),
+    Permission(name='Read Hall Pricing', code_name='read_hall_pricing', module_name='HallPricing',
+               module_label='Hall Pricing', description='User can read hall pricing'),
+    Permission(name='Update Hall Pricing', code_name='update_hall_pricing', module_name='HallPricing',
+               module_label='Hall Pricing', description='User can update hall pricing'),
+    Permission(name='Delete Hall Pricing', code_name='delete_hall_pricing', module_name='HallPricing',
+               module_label='Hall Pricing', description='User can delete hall pricing'),
+
+    # ─────────────────────────────────────────────────────────────
+    # BOOKING SERVICE
+    # ─────────────────────────────────────────────────────────────
+    Permission(name='Show Booking Service', code_name='show_booking_service', module_name='BookingService',
+               module_label='Booking Services', description='User can see booking service'),
+    Permission(name='Create Booking Service', code_name='create_booking_service', module_name='BookingService',
+               module_label='Booking Services', description='User can create booking service'),
+    Permission(name='Read Booking Service', code_name='read_booking_service', module_name='BookingService',
+               module_label='Booking Services', description='User can read booking service'),
+    Permission(name='Update Booking Service', code_name='update_booking_service', module_name='BookingService',
+               module_label='Booking Services', description='User can update booking service'),
+    Permission(name='Delete Booking Service', code_name='delete_booking_service', module_name='BookingService',
+               module_label='Booking Services', description='User can delete booking service'),
+
+    # ─────────────────────────────────────────────────────────────
+    # HALL AMENITY
+    # ─────────────────────────────────────────────────────────────
+    Permission(name='Show Hall Amenity', code_name='show_hall_amenity', module_name='HallAmenity',
+               module_label='Hall Amenities', description='User can see hall amenity'),
+    Permission(name='Create Hall Amenity', code_name='create_hall_amenity', module_name='HallAmenity',
+               module_label='Hall Amenities', description='User can create hall amenity'),
+    Permission(name='Read Hall Amenity', code_name='read_hall_amenity', module_name='HallAmenity',
+               module_label='Hall Amenities', description='User can read hall amenity'),
+    Permission(name='Update Hall Amenity', code_name='update_hall_amenity', module_name='HallAmenity',
+               module_label='Hall Amenities', description='User can update hall amenity'),
+    Permission(name='Delete Hall Amenity', code_name='delete_hall_amenity', module_name='HallAmenity',
+               module_label='Hall Amenities', description='User can delete hall amenity'),
 ]
 
 
