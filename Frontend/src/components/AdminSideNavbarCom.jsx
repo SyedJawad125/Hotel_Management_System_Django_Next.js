@@ -463,6 +463,20 @@ const navSections = [
     ],
   },
   {
+    label: 'FINANCIAL',
+    items: [
+      { icon: '💳', label: 'Payments', key: 'payments', path: '/admin/payments' },
+      { icon: '💰', label: 'Hall Pricing', key: 'pricing', path: '/admin/hall-pricing' },
+    ],
+  },
+  {
+    label: 'SERVICES',
+    items: [
+      { icon: '🎁', label: 'Booking Services', key: 'services', path: '/admin/booking-services' },
+      { icon: '✨', label: 'Hall Amenities', key: 'amenities', path: '/admin/hall-amenities' },
+    ],
+  },
+  {
     label: 'MANAGEMENT',
     items: [
       { icon: '👥', label: 'Customers', key: 'customers', path: '/customers' },

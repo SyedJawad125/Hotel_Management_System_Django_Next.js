@@ -114,7 +114,63 @@ class BookingSerializer(serializers.ModelSerializer):
                 )
         return attrs
 
-    # create / update / to_representation unchanged …
+    def create(self, validated_data):
+        hall = validated_data.get('hall')
+        booking = super().create(validated_data)
+        
+        # Update hall occupancy when booking is created
+        if hall and booking.status != 'cancelled':
+            hall.occupied = True
+            # Format: "2026-06-28 (night)"
+            occupied_str = f"{booking.date} ({booking.get_time_slot_display()})"
+            hall.occupied_dates = occupied_str
+            hall.save(update_fields=['occupied', 'occupied_dates'])
+        
+        # Recalculate booking count
+        hall.recalculate_booking_count()
+        
+        return booking
+
+    def update(self, instance, validated_data):
+        hall = validated_data.get('hall', instance.hall)
+        old_hall = instance.hall
+        old_status = instance.status
+        
+        booking = super().update(instance, validated_data)
+        
+        # Update old hall if hall changed
+        if old_hall != hall:
+            old_hall.recalculate_booking_count()
+            if not old_hall.bookings.filter(deleted=False).exclude(status='cancelled').exists():
+                old_hall.occupied = False
+                old_hall.occupied_dates = None
+                old_hall.save(update_fields=['occupied', 'occupied_dates'])
+        
+        # Handle status change to cancelled
+        if old_status != 'cancelled' and booking.status == 'cancelled':
+            hall.recalculate_booking_count()
+            if not hall.bookings.filter(deleted=False).exclude(status='cancelled').exists():
+                hall.occupied = False
+                hall.occupied_dates = None
+                hall.save(update_fields=['occupied', 'occupied_dates'])
+        # Handle status change from cancelled to active
+        elif old_status == 'cancelled' and booking.status != 'cancelled':
+            hall.occupied = True
+            occupied_str = f"{booking.date} ({booking.get_time_slot_display()})"
+            hall.occupied_dates = occupied_str
+            hall.save(update_fields=['occupied', 'occupied_dates'])
+        # Update hall occupancy for active bookings
+        elif hall and booking.status != 'cancelled':
+            hall.occupied = True
+            occupied_str = f"{booking.date} ({booking.get_time_slot_display()})"
+            hall.occupied_dates = occupied_str
+            hall.save(update_fields=['occupied', 'occupied_dates'])
+        
+        # Recalculate booking count for current hall
+        hall.recalculate_booking_count()
+        
+        return booking
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data['created_by']   = instance.created_by.full_name  if instance.created_by  else None
