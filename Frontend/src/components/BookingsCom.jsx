@@ -71,7 +71,7 @@ function TextField({ value, onChange, ...rest }) {
   return (
     <input
       style={{ ...inputStyle, borderColor: focused ? gold : line }}
-      value={value}
+      value={value || ''}
       onChange={onChange}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
@@ -229,15 +229,24 @@ const BookingsCom = () => {
 
   const openCreate = () => {
     setEditingBooking(null);
-    setForm(emptyForm);
+    setForm({ ...emptyForm });
     setModalOpen(true);
   };
 
   const openEdit = (booking) => {
+    console.log('Editing booking:', booking); // Debug log
+    
+    // Set the editing booking first
     setEditingBooking(booking);
+    
+    // Get hall ID - try multiple possible locations
+    const hallId = booking.hall?.id || booking.hall_id || booking.hallId || '';
+    const customerId = booking.customer?.id || booking.customer_id || booking.customerId || '';
+    
+    // Populate the form with all the data
     setForm({
-      hall: booking.hall?.id || '',
-      customer: booking.customer?.id || '',
+      hall: hallId,
+      customer: customerId,
       event_type_en: booking.event_type_en || '',
       event_type_ar: booking.event_type_ar || '',
       date: booking.date || '',
@@ -245,12 +254,17 @@ const BookingsCom = () => {
       status: booking.status || 'pending',
       total: booking.total || '',
     });
+    
+    // Open the modal
     setModalOpen(true);
   };
 
   const closeModal = () => {
     if (saving) return;
     setModalOpen(false);
+    // Reset form when closing
+    setForm({ ...emptyForm });
+    setEditingBooking(null);
   };
 
   const saveBooking = async (e) => {
@@ -281,6 +295,8 @@ const BookingsCom = () => {
         toast.success('Booking created successfully');
       }
       setModalOpen(false);
+      setForm({ ...emptyForm });
+      setEditingBooking(null);
       setCurrentPage(1);
       fetchBookings();
     } catch (error) {
@@ -585,40 +601,56 @@ const BookingsCom = () => {
               <FormGroup label="Hall" required>
                 <select
                   style={inputStyle}
-                  value={form.hall}
+                  value={form.hall || ''}
                   onChange={(e) => setForm({ ...form, hall: e.target.value })}
                 >
                   <option value="">Select Hall</option>
                   {halls.map((h) => (
-                    <option key={h.id} value={h.id}>{h.name_en}</option>
+                    <option key={h.id} value={h.id}>
+                      {h.name_en || h.name || `Hall ${h.id}`}
+                    </option>
                   ))}
                 </select>
+                {/* Debug info - remove in production */}
+                {form.hall && (
+                  <div style={{ fontSize: 11, color: '#A39C8A', marginTop: 4 }}>
+                    Selected Hall ID: {form.hall}
+                  </div>
+                )}
               </FormGroup>
               <FormGroup label="Customer" required>
                 <select
                   style={inputStyle}
-                  value={form.customer}
+                  value={form.customer || ''}
                   onChange={(e) => setForm({ ...form, customer: e.target.value })}
                 >
                   <option value="">Select Customer</option>
                   {customers.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name_en}</option>
+                    <option key={c.id} value={c.id}>
+                      {c.name_en || c.name || `Customer ${c.id}`}
+                    </option>
                   ))}
                 </select>
+                {/* Debug info - remove in production */}
+                {form.customer && (
+                  <div style={{ fontSize: 11, color: '#A39C8A', marginTop: 4 }}>
+                    Selected Customer ID: {form.customer}
+                  </div>
+                )}
               </FormGroup>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <FormGroup label="Event Type (English)" required>
                 <TextField
-                  value={form.event_type_en}
+                  value={form.event_type_en || ''}
                   onChange={(e) => setForm({ ...form, event_type_en: e.target.value })}
                   placeholder="Wedding"
                 />
               </FormGroup>
               <FormGroup label="Event Type (Arabic)">
                 <TextField
-                  value={form.event_type_ar}
+                  value={form.event_type_ar || ''}
                   onChange={(e) => setForm({ ...form, event_type_ar: e.target.value })}
                   placeholder="زفاف"
                   dir="rtl"
@@ -630,14 +662,14 @@ const BookingsCom = () => {
               <FormGroup label="Date" required>
                 <TextField
                   type="date"
-                  value={form.date}
+                  value={form.date || ''}
                   onChange={(e) => setForm({ ...form, date: e.target.value })}
                 />
               </FormGroup>
               <FormGroup label="Time Slot" required>
                 <select
                   style={inputStyle}
-                  value={form.time_slot}
+                  value={form.time_slot || 'morning'}
                   onChange={(e) => setForm({ ...form, time_slot: e.target.value })}
                 >
                   <option value="morning">Morning Shift</option>
@@ -651,7 +683,7 @@ const BookingsCom = () => {
               <FormGroup label="Status" required>
                 <select
                   style={inputStyle}
-                  value={form.status}
+                  value={form.status || 'pending'}
                   onChange={(e) => setForm({ ...form, status: e.target.value })}
                 >
                   <option value="pending">Pending</option>
@@ -664,7 +696,7 @@ const BookingsCom = () => {
                   type="number"
                   min="0"
                   step="0.01"
-                  value={form.total}
+                  value={form.total || ''}
                   onChange={(e) => setForm({ ...form, total: e.target.value })}
                   placeholder="0.00"
                 />
