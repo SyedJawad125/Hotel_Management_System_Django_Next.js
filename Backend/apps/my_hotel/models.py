@@ -189,7 +189,7 @@ from config import settings
 from utils.reusable_classes import TimeStamps, TimeUserStamps
 from utils.validators import val_name, val_mobile, val_code_name
 from utils.enums import *
-
+from django.utils import timezone 
 
 # ─────────────────────────────────────────────────────────────────────
 # CUSTOMERS
@@ -260,6 +260,26 @@ class Hall(TimeUserStamps):
     def recalculate_booking_count(self):
         self.booking_count = self.bookings.count()
         self.save(update_fields=['booking_count'])
+
+    def get_upcoming_bookings(self, limit=2):
+        """Non-cancelled bookings for today or later, soonest first."""
+        today = timezone.localdate()
+        return (
+            self.bookings
+            .filter(deleted=False, date__gte=today)
+            .exclude(status=CANCELLED)
+            .order_by('date', 'time_slot')[:limit]
+        )
+
+    @property
+    def is_occupied_today(self):
+        today = timezone.localdate()
+        return (
+            self.bookings
+            .filter(deleted=False, date=today)
+            .exclude(status=CANCELLED)
+            .exists()
+        )
 
 
 # ─────────────────────────────────────────────────────────────────────

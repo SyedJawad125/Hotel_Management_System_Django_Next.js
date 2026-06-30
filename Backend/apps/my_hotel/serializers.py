@@ -43,11 +43,30 @@ class CustomerListingSerializer(serializers.ModelSerializer):
 # ─────────────────────────────────────────────────────────────────────
 # HALL
 # ─────────────────────────────────────────────────────────────────────
-class HallSerializer(serializers.ModelSerializer):
+class HallOccupancyMixin:
+    def get_occupied(self, instance):
+        return instance.is_occupied_today
+
+    def get_upcoming_occupied_dates(self, instance):
+        return [
+            {
+                'date': b.date,
+                'time_slot': b.time_slot,
+                'time_slot_display': b.get_time_slot_display(),
+                'booking_code': b.booking_code,
+                'event_type_en': b.event_type_en,
+            }
+            for b in instance.get_upcoming_bookings(limit=2)
+        ]
+
+
+class HallSerializer(HallOccupancyMixin, serializers.ModelSerializer):
+    occupied = serializers.SerializerMethodField()
+    upcoming_occupied_dates = serializers.SerializerMethodField()
+
     class Meta:
         model = Hall
         fields = '__all__'
-
     def validate(self, attrs):
         name_en = attrs.get('name_en', None)
         code_name = attrs.get('code_name', None)
@@ -74,11 +93,14 @@ class HallSerializer(serializers.ModelSerializer):
         return data
 
 
-class HallListingSerializer(serializers.ModelSerializer):
+class HallListingSerializer(HallOccupancyMixin, serializers.ModelSerializer):
+    occupied = serializers.SerializerMethodField()
+    upcoming_occupied_dates = serializers.SerializerMethodField()
+
     class Meta:
         model = Hall
         fields = ['id', 'name_en', 'name_ar', 'code_name', 'capacity', 'capacity_count',
-                  'badge', 'image', 'occupied', 'occupied_dates', 'booking_count']
+                  'badge', 'image', 'occupied', 'upcoming_occupied_dates', 'booking_count']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -87,10 +109,119 @@ class HallListingSerializer(serializers.ModelSerializer):
             data['image'] = request.build_absolute_uri(instance.image.url)
         return data
 
-
 # ─────────────────────────────────────────────────────────────────────
 # BOOKING
 # ─────────────────────────────────────────────────────────────────────
+# class BookingSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model  = Booking
+#         fields = '__all__'
+
+#     def validate(self, attrs):
+#         hall      = attrs.get('hall')      or (self.instance.hall      if self.instance else None)
+#         date      = attrs.get('date')      or (self.instance.date      if self.instance else None)
+#         time_slot = attrs.get('time_slot') or (self.instance.time_slot if self.instance else None)  # ← NEW
+
+#         # Prevent double-booking the same hall on the same date AND time slot
+#         if hall and date and time_slot:
+#             clashing = Booking.objects.filter(
+#                 hall=hall, date=date, time_slot=time_slot, deleted=False  # ← NEW: add time_slot
+#             ).exclude(status=CANCELLED)
+#             if self.instance:
+#                 clashing = clashing.exclude(id=self.instance.id)
+#             if clashing.exists():
+#                 raise serializers.ValidationError(
+#                     'This hall is already booked for the selected date and time slot'
+#                 )
+#         return attrs
+
+#     def create(self, validated_data):
+#         hall = validated_data.get('hall')
+#         booking = super().create(validated_data)
+        
+#         # Update hall occupancy when booking is created
+#         if hall and booking.status != 'cancelled':
+#             hall.occupied = True
+#             # Format: "2026-06-28 (night)"
+#             occupied_str = f"{booking.date} ({booking.get_time_slot_display()})"
+#             hall.occupied_dates = occupied_str
+#             hall.save(update_fields=['occupied', 'occupied_dates'])
+        
+#         # Recalculate booking count
+#         hall.recalculate_booking_count()
+        
+#         return booking
+
+#     def update(self, instance, validated_data):
+#         hall = validated_data.get('hall', instance.hall)
+#         old_hall = instance.hall
+#         old_status = instance.status
+        
+#         booking = super().update(instance, validated_data)
+        
+#         # Update old hall if hall changed
+#         if old_hall != hall:
+#             old_hall.recalculate_booking_count()
+#             if not old_hall.bookings.filter(deleted=False).exclude(status='cancelled').exists():
+#                 old_hall.occupied = False
+#                 old_hall.occupied_dates = None
+#                 old_hall.save(update_fields=['occupied', 'occupied_dates'])
+        
+#         # Handle status change to cancelled
+#         if old_status != 'cancelled' and booking.status == 'cancelled':
+#             hall.recalculate_booking_count()
+#             if not hall.bookings.filter(deleted=False).exclude(status='cancelled').exists():
+#                 hall.occupied = False
+#                 hall.occupied_dates = None
+#                 hall.save(update_fields=['occupied', 'occupied_dates'])
+#         # Handle status change from cancelled to active
+#         elif old_status == 'cancelled' and booking.status != 'cancelled':
+#             hall.occupied = True
+#             occupied_str = f"{booking.date} ({booking.get_time_slot_display()})"
+#             hall.occupied_dates = occupied_str
+#             hall.save(update_fields=['occupied', 'occupied_dates'])
+#         # Update hall occupancy for active bookings
+#         elif hall and booking.status != 'cancelled':
+#             hall.occupied = True
+#             occupied_str = f"{booking.date} ({booking.get_time_slot_display()})"
+#             hall.occupied_dates = occupied_str
+#             hall.save(update_fields=['occupied', 'occupied_dates'])
+        
+#         # Recalculate booking count for current hall
+#         hall.recalculate_booking_count()
+        
+#         return booking
+
+#     def to_representation(self, instance):
+#         data = super().to_representation(instance)
+#         data['created_by']   = instance.created_by.full_name  if instance.created_by  else None
+#         data['updated_by']   = instance.updated_by.full_name  if instance.updated_by  else None
+#         data['hall_name_en'] = instance.hall.name_en           if instance.hall        else None
+#         data['hall_name_ar'] = instance.hall.name_ar           if instance.hall        else None
+#         data['customer_name']= instance.customer.name_en       if instance.customer    else None
+#         return data
+
+
+# class BookingListingSerializer(serializers.ModelSerializer):
+#     hall_name_en  = serializers.CharField(source='hall.name_en',     read_only=True)
+#     hall_name_ar  = serializers.CharField(source='hall.name_ar',     read_only=True)
+#     customer_name = serializers.CharField(source='customer.name_en', read_only=True)
+
+#     class Meta:
+#         model  = Booking
+#         fields = [
+#             'id', 'booking_code',
+#             'hall', 'hall_name_en', 'hall_name_ar',
+#             'customer', 'customer_name',
+#             'event_type_en', 'event_type_ar',
+#             'date', 'time_slot',          # ← NEW
+#             'status', 'total',
+#         ]
+
+
+
+
+
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Booking
@@ -99,12 +230,12 @@ class BookingSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         hall      = attrs.get('hall')      or (self.instance.hall      if self.instance else None)
         date      = attrs.get('date')      or (self.instance.date      if self.instance else None)
-        time_slot = attrs.get('time_slot') or (self.instance.time_slot if self.instance else None)  # ← NEW
+        time_slot = attrs.get('time_slot') or (self.instance.time_slot if self.instance else None)
 
         # Prevent double-booking the same hall on the same date AND time slot
         if hall and date and time_slot:
             clashing = Booking.objects.filter(
-                hall=hall, date=date, time_slot=time_slot, deleted=False  # ← NEW: add time_slot
+                hall=hall, date=date, time_slot=time_slot, deleted=False
             ).exclude(status=CANCELLED)
             if self.instance:
                 clashing = clashing.exclude(id=self.instance.id)
@@ -115,69 +246,30 @@ class BookingSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        hall = validated_data.get('hall')
         booking = super().create(validated_data)
-        
-        # Update hall occupancy when booking is created
-        if hall and booking.status != 'cancelled':
-            hall.occupied = True
-            # Format: "2026-06-28 (night)"
-            occupied_str = f"{booking.date} ({booking.get_time_slot_display()})"
-            hall.occupied_dates = occupied_str
-            hall.save(update_fields=['occupied', 'occupied_dates'])
-        
-        # Recalculate booking count
-        hall.recalculate_booking_count()
-        
+        # occupied / occupied_dates are now computed live on Hall (see is_occupied_today,
+        # get_upcoming_bookings) — nothing to write here. Just keep the denormalized count fresh.
+        booking.hall.recalculate_booking_count()
         return booking
 
     def update(self, instance, validated_data):
-        hall = validated_data.get('hall', instance.hall)
         old_hall = instance.hall
-        old_status = instance.status
-        
         booking = super().update(instance, validated_data)
-        
-        # Update old hall if hall changed
-        if old_hall != hall:
+
+        # If the hall changed, refresh the old hall's count too
+        if old_hall != booking.hall:
             old_hall.recalculate_booking_count()
-            if not old_hall.bookings.filter(deleted=False).exclude(status='cancelled').exists():
-                old_hall.occupied = False
-                old_hall.occupied_dates = None
-                old_hall.save(update_fields=['occupied', 'occupied_dates'])
-        
-        # Handle status change to cancelled
-        if old_status != 'cancelled' and booking.status == 'cancelled':
-            hall.recalculate_booking_count()
-            if not hall.bookings.filter(deleted=False).exclude(status='cancelled').exists():
-                hall.occupied = False
-                hall.occupied_dates = None
-                hall.save(update_fields=['occupied', 'occupied_dates'])
-        # Handle status change from cancelled to active
-        elif old_status == 'cancelled' and booking.status != 'cancelled':
-            hall.occupied = True
-            occupied_str = f"{booking.date} ({booking.get_time_slot_display()})"
-            hall.occupied_dates = occupied_str
-            hall.save(update_fields=['occupied', 'occupied_dates'])
-        # Update hall occupancy for active bookings
-        elif hall and booking.status != 'cancelled':
-            hall.occupied = True
-            occupied_str = f"{booking.date} ({booking.get_time_slot_display()})"
-            hall.occupied_dates = occupied_str
-            hall.save(update_fields=['occupied', 'occupied_dates'])
-        
-        # Recalculate booking count for current hall
-        hall.recalculate_booking_count()
-        
+
+        booking.hall.recalculate_booking_count()
         return booking
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data['created_by']   = instance.created_by.full_name  if instance.created_by  else None
-        data['updated_by']   = instance.updated_by.full_name  if instance.updated_by  else None
-        data['hall_name_en'] = instance.hall.name_en           if instance.hall        else None
-        data['hall_name_ar'] = instance.hall.name_ar           if instance.hall        else None
-        data['customer_name']= instance.customer.name_en       if instance.customer    else None
+        data['created_by']    = instance.created_by.full_name if instance.created_by else None
+        data['updated_by']    = instance.updated_by.full_name if instance.updated_by else None
+        data['hall_name_en']  = instance.hall.name_en          if instance.hall       else None
+        data['hall_name_ar']  = instance.hall.name_ar          if instance.hall       else None
+        data['customer_name'] = instance.customer.name_en      if instance.customer   else None
         return data
 
 
@@ -193,7 +285,7 @@ class BookingListingSerializer(serializers.ModelSerializer):
             'hall', 'hall_name_en', 'hall_name_ar',
             'customer', 'customer_name',
             'event_type_en', 'event_type_ar',
-            'date', 'time_slot',          # ← NEW
+            'date', 'time_slot',
             'status', 'total',
         ]
 
