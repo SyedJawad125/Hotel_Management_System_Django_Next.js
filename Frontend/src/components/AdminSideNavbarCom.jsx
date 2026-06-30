@@ -33,6 +33,7 @@ const navSections = [
       { icon: '👤', label: 'System Users', key: 'users', path: '/system_users' },
       { icon: '👤', label: 'Employees', key: 'employees', path: '/admin/employees' },
       { icon: '🛡️', label: 'Roles', key: 'roles', path: '/admin/roles' },
+      { icon: '�', label: 'Activity Log', key: 'activities', path: '/admin/activities' },
       { icon: '📈', label: 'Reports & Analytics', key: 'reports', path: '/admin/reports' },
     ],
   },
