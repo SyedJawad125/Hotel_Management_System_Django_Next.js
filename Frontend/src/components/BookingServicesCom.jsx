@@ -133,7 +133,7 @@ const BookingServicesCom = () => {
   const fetchServices = async () => {
     setLoading(true);
     try {
-      const res = await AxiosInstance.get('/api/hotel/v1/booking-service/', {
+      const res = await AxiosInstance.get('/api/hotel/v1/booking/service/', {
         params: {
           limit: recordsPerPage,
           offset: (currentPage - 1) * recordsPerPage,
@@ -231,10 +231,10 @@ const BookingServicesCom = () => {
       };
 
       if (editingService) {
-        await AxiosInstance.patch(`/api/hotel/v1/booking-service/?id=${editingService.id}`, payload);
+        await AxiosInstance.patch(`/api/hotel/v1/booking/service/?id=${editingService.id}`, payload);
         toast.success('Service updated successfully');
       } else {
-        await AxiosInstance.post('/api/hotel/v1/booking-service/', payload);
+        await AxiosInstance.post('/api/hotel/v1/booking/service/', payload);
         toast.success('Service added successfully');
       }
       setModalOpen(false);
@@ -252,7 +252,7 @@ const BookingServicesCom = () => {
   const deleteService = async (service) => {
     if (!window.confirm(`Remove this service? This cannot be undone.`)) return;
     try {
-      const res = await AxiosInstance.delete(`/api/hotel/v1/booking-service/?id=${service.id}`);
+      const res = await AxiosInstance.delete(`/api/hotel/v1/booking/service/?id=${service.id}`);
       if (res) {
         toast.success('Service deleted successfully');
         setCurrentPage(1);

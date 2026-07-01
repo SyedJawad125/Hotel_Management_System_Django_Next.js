@@ -443,7 +443,7 @@ class HallPricing(TimeUserStamps):
 # ─────────────────────────────────────────────────────────────────────
 # BOOKING SERVICES
 # ─────────────────────────────────────────────────────────────────────
-class BookingService(TimeStamps):
+class BookingService(TimeUserStamps):
     """
     Booking Services screen: Additional services/add-ons for bookings.
     Examples: Catering, Decoration, Photography, etc.
@@ -461,7 +461,7 @@ class BookingService(TimeStamps):
 # ─────────────────────────────────────────────────────────────────────
 # HALL AMENITIES
 # ─────────────────────────────────────────────────────────────────────
-class HallAmenity(TimeStamps):
+class HallAmenity(TimeUserStamps):
     """
     Hall Amenities screen: Amenities available in each hall.
     Examples: WiFi, Parking, AC, Projector, Sound System, etc.

@@ -401,6 +401,8 @@ class BookingServiceSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data['booking_code'] = instance.booking.booking_code if instance.booking else None
+        data['created_by_name'] = instance.created_by.get_full_name() if instance.created_by else None
+        data['updated_by_name'] = instance.updated_by.get_full_name() if instance.updated_by else None
         return data
 
 
@@ -423,6 +425,8 @@ class HallAmenitySerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data['hall_name_en'] = instance.hall.name_en if instance.hall else None
+        data['created_by_name'] = instance.created_by.get_full_name() if instance.created_by else None
+        data['updated_by_name'] = instance.updated_by.get_full_name() if instance.updated_by else None
         return data
 
 
