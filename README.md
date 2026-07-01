@@ -1,82 +1,427 @@
-A complete authentication system featuring user signup, login, password update, forgot password, OTP verification, and secure logout. 
-The application is built using Django for the backend and Next.js 14 for the frontend, with PostgreSQL as the database. 
-It implements a secure authentication flow using both access and refresh tokens.
+The Heritage Village — Hotel & Event & Venue Management System
 
+القرية الشعبية — ١٩٩٨
+Luxury Heritage Hotel & Event Management Platform
 
+A modern full-stack Hotel & Event Management System built for managing halls, venues, customers, bookings, employees, payments, pricing, services, reports, and secure role-based staff operations.
 
-# The Heritage Village — Hotel & Event Management System
+The system is designed with a premium gold-on-black luxury theme, bilingual English/Arabic support, RTL-aware layouts, and enterprise-grade authentication.
 
-> القرية الشعبية -١٩٩٨- | *Est. 1998*
+Built using:
 
-A bilingual (English/Arabic, RTL-aware) back-office system for managing a heritage hotel & event venue: halls, event bookings, customers, staff, and role-based access — built with a gold-on-ivory luxury aesthetic.
+Backend: Django + Django REST Framework
+Frontend: Next.js 14 (App Router)
+Database: PostgreSQL
+Authentication: JWT Access + Refresh Tokens
+Architecture: Modular, scalable, role-based enterprise design
+Features
+Authentication & Security
 
----
+A complete enterprise authentication system featuring:
 
-## Tech Stack
+User Signup & Invitation Flow
+Secure Login
+JWT Authentication
+Access + Refresh Tokens
+Forgot Password
+OTP Verification
+Password Reset
+Password Change
+Account Activation via Email
+Login Attempt Tracking
+User Blocking System
+Secure Logout
+Role-Based Access Control (RBAC)
+Permission-Based Authorization
+Tech Stack
+Layer	Technology
+Backend	Django
+API	Django REST Framework
+Frontend	Next.js 14
+Database	PostgreSQL
+Authentication	JWT
+State Management	React Context API
+Styling	Tailwind CSS + Custom Luxury Theme
+File Uploads	Django Media Storage
+Architecture	RESTful APIs
+Design Language
+Theme
 
-| Layer    | Technology |
-|----------|-----------|
-| Backend  | Django + Django REST Framework |
-| Frontend | Next.js 14 (App Router) |
-| Database | PostgreSQL |
-| Auth     | JWT (access + refresh tokens), role-based permissions |
+Luxury heritage-inspired UI with premium hospitality aesthetics.
 
----
+Color Palette
+Color	Usage
+#000000	Sidebar / Primary Background
+#C6A43F	Gold Accent
+#F6F3EC	Ivory Background
+#FBF9F4	Light Cream
+#26231D	Dark Typography
+#CCCCCC	Secondary Text
+Typography
+Cormorant Garamond → Headings & Luxury Display
+DM Sans → UI Labels & Body Text
+Layout
+Fixed dark sidebar
+Gold accent navigation
+Rounded luxury cards
+Soft shadows
+RTL support
+Responsive admin dashboard
+Enterprise-style data management screens
+Core Modules
+Dashboard
+Revenue statistics
+Hall occupancy analytics
+Upcoming bookings
+Popular halls
+Activity logs
+Customer insights
+Financial overview
+Halls & Venues
 
-## Design Language
+Manage hotel halls and venues:
 
-- **Palette**: gold `#C6A43F` accent on an ivory/cream base (`#F6F3EC` / `#FBF9F4`), near-black ink text (`#26231D`), soft card shadows, no harsh borders.
-- **Typography**: `Cormorant Garamond` (serif) for headings and display numbers, `DM Sans` for body text and UI labels.
-- **Layout**: fixed dark sidebar (`#000000` with gold accents) on the left, grouped into **Main** (Dashboard, Halls & Venues, Event Bookings) and **Management** (Customers, Employees, Roles, Reports & Analytics) sections.
-- **Components**: rounded cards (16–22px radius), pill-shaped status badges, soft gold-tinted hover states, consistent table/card patterns across every management screen.
-- **Bilingual**: full English ↔ Arabic toggle with RTL layout mirroring (sidebar flips, nav borders flip side).
+Hall creation
+Capacity management
+Occupancy tracking
+Hall images
+Venue status
+Booking analytics
+Hall amenities
+Dynamic pricing
+Event Bookings
 
----
+Complete event booking management:
 
-## Domain Model
+Hall booking
+Customer assignment
+Booking code generation
+Time slot management
+Event scheduling
+Booking status tracking
+Revenue tracking
 
-### `user` app — identity, staff, and access control
+Supported shifts:
 
-- **User** — the auth-bearing account (`AbstractBaseUser`). Holds `username` (used as login + email), name, mobile, profile image, and a `type` of `EMPLOYEE` or `CUSTOMER`. Supports invite-by-email account activation, OTP-based password reset, login-attempt lockout, and soft blocking.
-- **Employee** — a thin staff wrapper around `User` (one-to-one), tracking onboarding `status`: `INVITED → ACTIVE`, or `DEACTIVATED`. Created via an admin-triggered invitation flow; the invitee sets their own password through an emailed activation link.
-- **Role** — a named, reusable permission bundle (e.g. "Event Manager") assigned to employees via FK.
-- **Permission** — a granular, module-scoped capability (e.g. `CREATE_HALL`, `DELETE_CUSTOMER`), grouped by `module_label` for UI presentation. Roles hold a many-to-many set of permissions.
+Morning Shift
+Afternoon Shift
+Night Shift
+Payments
 
-### `hotel` app — operations
+Payment management system:
 
-- **Customer** — a staff-managed guest contact record (no login). Tracks `bookings_count` and `total_spent`, denormalized and recalculated from their booking history.
-- **Hall** — a bookable venue (English/Arabic name, capacity, badge, photo, occupancy status, booking count).
-- **Booking** — links a `Hall` and `Customer` to an event (type, date, time slot: morning/afternoon/night, status: confirmed/pending/cancelled, total). Auto-generates a human-readable booking code (`B1001`, `B1002`, …) on creation.
-- **ActivityLog** — a lightweight feed of system events for the dashboard's "Recent Activity" panel, populated via signals on create/update/delete across the core models.
-- **Reports** — Revenue Report and Customer Report are not separate tables; both are computed on demand by filtering `Booking` over a date range and exporting to CSV.
+Partial payments
+Full payments
+Payment history
+Payment methods
+Financial tracking
+Booking-linked payments
 
----
+Supported payment methods:
 
-## Application Modules (Sidebar)
+Cash
+Card
+Bank Transfer
+Check
+Hall Pricing
 
-**Main**
-- 📊 **Dashboard** — stat cards, hall utilization, upcoming events, popular halls, recent activity feed.
-- 🏛️ **Halls & Venues** — table/card toggle view, create/edit/delete halls, occupancy status, image upload.
-- 📅 **Event Bookings** — calendar/list of bookings per hall and customer, status management.
+Dynamic hall pricing management:
 
-**Management**
-- 👥 **Customers** — guest directory, contact info, lifetime bookings & spend, CSV export.
-- 👤 **Employees** — staff directory, invite-by-email onboarding, role assignment, activate/deactivate, CSV export.
-- 🛡️ **Roles** — permission-bundle management, grouped permission picker by module, CSV export.
-- 📈 **Reports & Analytics** — date-ranged revenue and customer activity reports, CSV export.
+Time-slot pricing
+Seasonal pricing
+Date-range pricing
+Hall-specific rates
+Booking Services
 
----
+Additional booking add-ons:
 
-## Core Conventions
+Catering
+Decoration
+Photography
+Sound System
+Event Services
+Hall Amenities
 
-- All primary models use soft-delete (`deleted` flag) rather than hard deletion, except where a relationship makes hard deletion intentional (e.g. removing an Employee also removes their linked User account).
-- Destructive actions are guarded server-side where real data depends on them — a Hall with active bookings, a Customer with bookings, or a Role with assigned users cannot be deleted, and the API returns a descriptive error instead of failing silently.
-- List endpoints are paginated (`limit`/`offset`) and return a consistent envelope: `{ message, count, data }`.
-- Every create/update/delete action on staff-facing records triggers a contextual transactional email (invitation, deactivation, deletion, password change).
-- The frontend never assumes write endpoints exist that the backend doesn't implement — read-only modules stay read-only until the corresponding API method is added.
+Manage amenities per hall:
 
----
+WiFi
+Parking
+Air Conditioning
+Projector
+Sound System
+Seating
+Stage Setup
+Customers
 
-## Getting Started
+Customer relationship management:
 
-> _Add local setup, environment variables, and migration instructions here once finalized._
+Guest records
+Booking history
+Lifetime spending
+Contact management
+Customer analytics
+Employees
+
+Employee management system:
+
+Employee onboarding
+Invitation workflow
+Role assignment
+Employee activation/deactivation
+Staff management
+Roles & Permissions
+
+Enterprise RBAC system:
+
+Dynamic roles
+Module-based permissions
+Permission grouping
+Secure authorization
+Admin-controlled access
+Reports & Analytics
+
+Analytics and reporting system:
+
+Revenue reports
+Customer reports
+Booking analytics
+Export-ready data
+Date-range filtering
+Sidebar Navigation
+MAIN
+📊 Dashboard
+🏛️ Halls & Venues
+📅 Event Bookings
+FINANCIAL
+💳 Payments
+💰 Hall Pricing
+SERVICES
+🎁 Booking Services
+✨ Hall Amenities
+MANAGEMENT
+👥 Customers
+👤 System Users
+👤 Employees
+🛡️ Roles
+📋 Activity Log
+📈 Reports & Analytics
+Database Models
+User App
+User Model
+
+Custom authentication user model using AbstractBaseUser.
+
+Features
+Username-based authentication
+Email integration
+Mobile number support
+Profile image upload
+OTP password reset
+Account verification
+Login attempt tracking
+User blocking
+Role assignment
+Employee/Customer user types
+Employee Model
+
+Employee profile linked with User model.
+
+Status Flow
+INVITED → ACTIVE → DEACTIVATED
+Role Model
+
+Permission bundle system.
+
+Example roles:
+
+Super Admin
+Event Manager
+Accountant
+Receptionist
+Staff Member
+Permission Model
+
+Granular module-level permissions.
+
+Examples:
+
+CREATE_BOOKING
+UPDATE_HALL
+DELETE_CUSTOMER
+VIEW_REPORTS
+MANAGE_EMPLOYEES
+Hotel App
+Customer
+
+Customer contact and booking profile.
+
+Features
+Booking count
+Total spending
+Contact management
+Analytics support
+Hall
+
+Venue management model.
+
+Features
+Capacity tracking
+Occupancy tracking
+Hall images
+Booking analytics
+Upcoming events
+Booking
+
+Core event booking model.
+
+Features
+Auto-generated booking codes
+Hall allocation
+Customer assignment
+Event scheduling
+Time slots
+Booking statuses
+Revenue tracking
+
+Example booking code:
+
+B1001
+B1002
+B1003
+ActivityLog
+
+Tracks system activity across modules.
+
+Tracks
+Create actions
+Updates
+Deletions
+Booking activities
+Staff activities
+Payment
+
+Tracks booking payments.
+
+Features
+Multiple payment methods
+Partial payments
+Booking-linked transactions
+Payment notes
+HallPricing
+
+Dynamic pricing system for halls.
+
+BookingService
+
+Additional services attached to bookings.
+
+HallAmenity
+
+Amenities available in halls.
+
+Security Features
+JWT Authentication
+Access & Refresh Tokens
+OTP Verification
+Password Reset Tokens
+Secure Password Hashing
+Role-Based Authorization
+Permission-Based Access
+Login Attempt Monitoring
+User Blocking
+Protected APIs
+API Features
+RESTful APIs
+Pagination
+Filtering
+Search
+CSV Export
+Consistent API responses
+Secure endpoints
+Role-protected routes
+
+Example API response:
+
+{
+  "message": "Success",
+  "count": 10,
+  "data": []
+}
+Frontend Features
+Next.js 14 App Router
+Server Components
+Client Components
+Route Protection
+Dynamic Routing
+Context Authentication
+UI Features
+Luxury hotel theme
+Responsive design
+Sidebar navigation
+Gold hover effects
+RTL Arabic support
+Dashboard analytics
+Reusable components
+Authentication Flow
+Employee Invitation Flow
+Admin Creates Employee
+        ↓
+Invitation Email Sent
+        ↓
+Employee Activates Account
+        ↓
+Password Setup
+        ↓
+Login Access Granted
+Forgot Password Flow
+User Requests Reset
+        ↓
+OTP Code Sent
+        ↓
+OTP Verification
+        ↓
+New Password Creation
+        ↓
+Secure Login
+Project Structure
+backend/
+│
+├── user/
+├── hotel/
+├── utils/
+├── config/
+│
+frontend/
+│
+├── app/
+├── components/
+├── context/
+├── services/
+├── hooks/
+Future Enhancements
+Online payments
+WhatsApp notifications
+SMS OTP integration
+Mobile application
+Hall availability calendar
+Invoice generation
+PDF exports
+Multi-branch hotel support
+AI-powered analytics
+Customer portal
+System Type
+
+This project is designed as:
+
+Enterprise Hotel Management System
+Event & Venue Management Platform
+Luxury Hospitality ERP
+Role-Based Staff Management System
+Developed Using
+Django
+Django REST Framework
+Next.js 14
+PostgreSQL
+React
+Tailwind CSS
+JWT Authentication
