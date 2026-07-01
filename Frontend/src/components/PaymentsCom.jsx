@@ -234,7 +234,7 @@ const PaymentsCom = () => {
   const openEdit = (payment) => {
     setEditingPayment(payment);
     setForm({
-      booking: payment.booking?.id || '',
+      booking: payment.booking || '',
       amount: payment.amount || '',
       payment_method: payment.payment_method || 'cash',
       payment_date: payment.payment_date || '',

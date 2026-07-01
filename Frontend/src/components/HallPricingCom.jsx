@@ -156,7 +156,7 @@ const HallPricingCom = () => {
   const fetchPricing = async () => {
     setLoading(true);
     try {
-      const res = await AxiosInstance.get('/api/hotel/v1/hall-pricing/', {
+      const res = await AxiosInstance.get('/api/hotel/v1/hall/pricing/', {
         params: {
           limit: recordsPerPage,
           offset: (currentPage - 1) * recordsPerPage,
@@ -164,16 +164,27 @@ const HallPricingCom = () => {
       });
 
       const payload = res?.data;
-      const list = Array.isArray(payload?.data) ? payload.data : payload?.data?.data;
-      const total = Array.isArray(payload?.data) ? payload.count : payload?.data?.count;
+      let list;
+      let total;
 
-      if (Array.isArray(list)) {
-        setRecords(list);
-        setCount(total ?? list.length);
+      // Handle response structure: data can be array or single object
+      if (Array.isArray(payload?.data)) {
+        list = payload.data;
+        total = payload.count;
+      } else if (typeof payload?.data === 'object' && payload?.data !== null) {
+        // Single object response
+        list = [payload.data];
+        total = payload.count || 1;
+      } else if (Array.isArray(payload?.data?.data)) {
+        list = payload.data.data;
+        total = payload.data.count;
       } else {
-        console.error('Unexpected response structure:', res);
-        toast.error('Could not load pricing');
+        list = [];
+        total = 0;
       }
+
+      setRecords(list);
+      setCount(total);
     } catch (error) {
       console.error('Error occurred:', error);
       toast.error('Error fetching pricing');
@@ -223,7 +234,7 @@ const HallPricingCom = () => {
   const openEdit = (pricing) => {
     setEditingPricing(pricing);
     setForm({
-      hall: pricing.hall?.id || '',
+      hall: pricing.hall || '',
       time_slot: pricing.time_slot || 'morning',
       base_price: pricing.base_price || '',
       valid_from: pricing.valid_from || '',
@@ -255,10 +266,11 @@ const HallPricingCom = () => {
       };
 
       if (editingPricing) {
-        await AxiosInstance.patch(`/api/hotel/v1/hall-pricing/?id=${editingPricing.id}`, payload);
+        await AxiosInstance.patch(`/api/hotel/v1/hall/
+          pricing/?id=${editingPricing.id}`, payload);
         toast.success('Pricing updated successfully');
       } else {
-        await AxiosInstance.post('/api/hotel/v1/hall-pricing/', payload);
+        await AxiosInstance.post('/api/hotel/v1/hall/pricing/', payload);
         toast.success('Pricing created successfully');
       }
       setModalOpen(false);
@@ -276,7 +288,7 @@ const HallPricingCom = () => {
   const deletePricing = async (pricing) => {
     if (!window.confirm(`Remove this pricing rule? This cannot be undone.`)) return;
     try {
-      const res = await AxiosInstance.delete(`/api/hotel/v1/hall-pricing/?id=${pricing.id}`);
+      const res = await AxiosInstance.delete(`/api/hotel/v1/hall/pricing/?id=${pricing.id}`);
       if (res) {
         toast.success('Pricing deleted successfully');
         setCurrentPage(1);
@@ -390,9 +402,9 @@ const HallPricingCom = () => {
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
                 <thead>
                   <tr style={{ background: ivory, borderBottom: `1px solid ${line}` }}>
-                    {['Hall', 'Time Slot', 'Base Price', 'Valid From', 'Valid Until', ''].map((h, i) => (
+                    {['Hall', 'Time Slot', 'Base Price', 'Valid From', 'Valid Until', 'Created By', ''].map((h, i) => (
                       <th key={i} style={{
-                        textAlign: i === 5 ? 'right' : 'left', padding: '14px 18px',
+                        textAlign: i === 6 ? 'right' : 'left', padding: '14px 18px',
                         fontSize: 10.5, letterSpacing: '0.08em', textTransform: 'uppercase',
                         color: '#8A8270', fontWeight: 700,
                       }}>{h}</th>
@@ -414,7 +426,7 @@ const HallPricingCom = () => {
                         {p.hall_name_en || p.hall?.name_en || '—'}
                       </td>
                       <td style={{ padding: '14px 18px' }}>
-                        <TimeSlotPill slot={p.time_slot} />
+                        <TimeSlotPill slot={p.time_slot_display || p.time_slot} />
                       </td>
                       <td style={{ padding: '14px 18px', fontSize: 13.5, color: goldDeep, fontWeight: 600 }}>
                         SAR {Number(p.base_price || 0).toLocaleString()}
@@ -424,6 +436,9 @@ const HallPricingCom = () => {
                       </td>
                       <td style={{ padding: '14px 18px', fontSize: 13.5, color: ink }}>
                         {p.valid_until || '—'}
+                      </td>
+                      <td style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
+                        {p.created_by_name || '—'}
                       </td>
                       <td style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>

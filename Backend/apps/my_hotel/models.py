@@ -418,7 +418,7 @@ class Payment(TimeUserStamps):
 # ─────────────────────────────────────────────────────────────────────
 # HALL PRICING
 # ─────────────────────────────────────────────────────────────────────
-class HallPricing(TimeStamps):
+class HallPricing(TimeUserStamps):
     """
     Hall Pricing screen: Price management for halls by time slot.
     Allows dynamic pricing based on time slots and date ranges.

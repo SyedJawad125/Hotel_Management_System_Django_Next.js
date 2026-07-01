@@ -377,6 +377,8 @@ class HallPricingSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         data['hall_name_en'] = instance.hall.name_en if instance.hall else None
         data['time_slot_display'] = instance.get_time_slot_display()
+        data['created_by_name'] = instance.created_by.get_full_name() if instance.created_by else None
+        data['updated_by_name'] = instance.updated_by.get_full_name() if instance.updated_by else None
         return data
 
 

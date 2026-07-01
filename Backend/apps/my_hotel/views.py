@@ -352,23 +352,24 @@ class HallPricingView(BaseView):
 
     @permission_required([DELETE_HALL_PRICING])
     def delete(self, request):
-        try:
-            if request.query_params.get('id'):
-                instance = self.serializer_class.Meta.model.objects.filter(
-                    deleted=False, id=request.query_params.get('id', None)
-                ).first()
-                if instance:
-                    instance.deleted = True
-                    instance.save()
-                    serialized_resp = self.serializer_class(instance).data
-                    return Response(create_response(SUCCESSFUL, serialized_resp, 1), status=status.HTTP_200_OK)
+            try:
+                if request.query_params.get('id'):
+                    instance = self.serializer_class.Meta.model.objects.filter(
+                        deleted=False, id=request.query_params.get('id', None)
+                    ).first()
+                    if instance:
+                        instance.deleted = True
+                        instance.save()
+                        serialized_resp = self.serializer_class(instance).data
+                        return Response(create_response(SUCCESSFUL, serialized_resp, 1), status=status.HTTP_200_OK)
+                    else:
+                        return Response(create_response(NOT_FOUND), status=status.HTTP_404_NOT_FOUND)
                 else:
-                    return Response(create_response(NOT_FOUND), status=status.HTTP_404_NOT_FOUND)
-            else:
-                return Response(create_response(ID_NOT_PROVIDED), status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            print(str(e))
-            return Response(create_response(str(e)), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    return Response(create_response(ID_NOT_PROVIDED), status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                print(str(e))
+                return Response(create_response(str(e)), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 # ─────────────────────────────────────────────────────────────────────
