@@ -52,6 +52,8 @@ def populate():
             role=role,
             type='Employee',
         )
+    admin.first_name = 'Syed Jawad'
+    admin.last_name = 'Ali'
     admin.is_active = True
     admin.is_verified = True
     admin.is_blocked = False

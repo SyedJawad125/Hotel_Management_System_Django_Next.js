@@ -266,8 +266,7 @@ const HallPricingCom = () => {
       };
 
       if (editingPricing) {
-        await AxiosInstance.patch(`/api/hotel/v1/hall/
-          pricing/?id=${editingPricing.id}`, payload);
+        await AxiosInstance.patch(`/api/hotel/v1/hall/pricing/?id=${editingPricing.id}`, payload);
         toast.success('Pricing updated successfully');
       } else {
         await AxiosInstance.post('/api/hotel/v1/hall/pricing/', payload);
