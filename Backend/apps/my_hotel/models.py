@@ -388,7 +388,7 @@ def customer_report(start_date=None, end_date=None):
 # ─────────────────────────────────────────────────────────────────────
 # PAYMENTS
 # ─────────────────────────────────────────────────────────────────────
-class Payment(TimeStamps):
+class Payment(TimeUserStamps):
     """
     Payments screen: Payment records for bookings.
     Tracks partial and full payments for each booking.

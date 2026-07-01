@@ -335,6 +335,8 @@ class PaymentSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         data['booking_code'] = instance.booking.booking_code if instance.booking else None
         data['payment_method_display'] = instance.get_payment_method_display()
+        data['created_by_name'] = instance.created_by.get_full_name() if instance.created_by else None
+        data['updated_by_name'] = instance.updated_by.get_full_name() if instance.updated_by else None
         return data
 
 

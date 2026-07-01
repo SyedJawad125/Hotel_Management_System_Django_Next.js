@@ -166,16 +166,27 @@ const PaymentsCom = () => {
       });
 
       const payload = res?.data;
-      const list = Array.isArray(payload?.data) ? payload.data : payload?.data?.data;
-      const total = Array.isArray(payload?.data) ? payload.count : payload?.data?.count;
+      let list;
+      let total;
 
-      if (Array.isArray(list)) {
-        setRecords(list);
-        setCount(total ?? list.length);
+      // Handle response structure: data can be array or single object
+      if (Array.isArray(payload?.data)) {
+        list = payload.data;
+        total = payload.count;
+      } else if (typeof payload?.data === 'object' && payload?.data !== null) {
+        // Single object response
+        list = [payload.data];
+        total = payload.count || 1;
+      } else if (Array.isArray(payload?.data?.data)) {
+        list = payload.data.data;
+        total = payload.data.count;
       } else {
-        console.error('Unexpected response structure:', res);
-        toast.error('Could not load payments');
+        list = [];
+        total = 0;
       }
+
+      setRecords(list);
+      setCount(total);
     } catch (error) {
       console.error('Error occurred:', error);
       toast.error('Error fetching payments');
@@ -390,9 +401,9 @@ const PaymentsCom = () => {
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
                 <thead>
                   <tr style={{ background: ivory, borderBottom: `1px solid ${line}` }}>
-                    {['Booking', 'Amount', 'Method', 'Payment Date', 'Notes', ''].map((h, i) => (
+                    {['Booking ID', 'Booking Code', 'Amount', 'Method', 'Payment Date', 'Notes', 'Created By', ''].map((h, i) => (
                       <th key={i} style={{
-                        textAlign: i === 5 ? 'right' : 'left', padding: '14px 18px',
+                        textAlign: i === 7 ? 'right' : 'left', padding: '14px 18px',
                         fontSize: 10.5, letterSpacing: '0.08em', textTransform: 'uppercase',
                         color: '#8A8270', fontWeight: 700,
                       }}>{h}</th>
@@ -415,19 +426,29 @@ const PaymentsCom = () => {
                           fontSize: 11.5, fontFamily: 'monospace', color: '#8A8270',
                           background: ivory, border: `1px solid ${lineSoft}`, borderRadius: 6, padding: '3px 8px',
                           fontWeight: 600,
-                        }}>{p.booking?.booking_code || '—'}</span>
+                        }}>{p.booking || '—'}</span>
+                      </td>
+                      <td style={{ padding: '14px 18px' }}>
+                        <span style={{
+                          fontSize: 11.5, fontFamily: 'monospace', color: '#8A8270',
+                          background: ivory, border: `1px solid ${lineSoft}`, borderRadius: 6, padding: '3px 8px',
+                          fontWeight: 600,
+                        }}>{p.booking_code || '—'}</span>
                       </td>
                       <td style={{ padding: '14px 18px', fontSize: 13.5, color: goldDeep, fontWeight: 600 }}>
                         SAR {Number(p.amount || 0).toLocaleString()}
                       </td>
                       <td style={{ padding: '14px 18px' }}>
-                        <MethodPill method={p.payment_method} />
+                        <MethodPill method={p.payment_method_display || p.payment_method} />
                       </td>
                       <td style={{ padding: '14px 18px', fontSize: 13.5, color: ink }}>
                         {p.payment_date || '—'}
                       </td>
                       <td style={{ padding: '14px 18px', fontSize: 12.5, color: '#A39C8A', maxWidth: 200 }}>
                         {p.notes || '—'}
+                      </td>
+                      <td style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
+                        {p.created_by_name || '—'}
                       </td>
                       <td style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
