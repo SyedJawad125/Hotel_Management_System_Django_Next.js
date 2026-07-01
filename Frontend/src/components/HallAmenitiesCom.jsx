@@ -133,7 +133,7 @@ const HallAmenitiesCom = () => {
   const fetchAmenities = async () => {
     setLoading(true);
     try {
-      const res = await AxiosInstance.get('/api/hotel/v1/hall-amenity/', {
+      const res = await AxiosInstance.get('/api/hotel/v1/hall/amenity/', {
         params: {
           limit: recordsPerPage,
           offset: (currentPage - 1) * recordsPerPage,
@@ -228,10 +228,10 @@ const HallAmenitiesCom = () => {
       };
 
       if (editingAmenity) {
-        await AxiosInstance.patch(`/api/hotel/v1/hall-amenity/?id=${editingAmenity.id}`, payload);
+        await AxiosInstance.patch(`/api/hotel/v1/hall/amenity/?id=${editingAmenity.id}`, payload);
         toast.success('Amenity updated successfully');
       } else {
-        await AxiosInstance.post('/api/hotel/v1/hall-amenity/', payload);
+        await AxiosInstance.post('/api/hotel/v1/hall/amenity/', payload);
         toast.success('Amenity added successfully');
       }
       setModalOpen(false);
@@ -249,7 +249,7 @@ const HallAmenitiesCom = () => {
   const deleteAmenity = async (amenity) => {
     if (!window.confirm(`Remove this amenity? This cannot be undone.`)) return;
     try {
-      const res = await AxiosInstance.delete(`/api/hotel/v1/hall-amenity/?id=${amenity.id}`);
+      const res = await AxiosInstance.delete(`/api/hotel/v1/hall/amenity/?id=${amenity.id}`);
       if (res) {
         toast.success('Amenity deleted successfully');
         setCurrentPage(1);
