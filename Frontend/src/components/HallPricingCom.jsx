@@ -401,9 +401,9 @@ const HallPricingCom = () => {
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
                 <thead>
                   <tr style={{ background: ivory, borderBottom: `1px solid ${line}` }}>
-                    {['Hall', 'Time Slot', 'Base Price', 'Valid From', 'Valid Until', 'Created By', ''].map((h, i) => (
+                    {['ID', 'Hall ID', 'Hall', 'Time Slot', 'Base Price', 'Valid From', 'Valid Until', 'Created By', ''].map((h, i) => (
                       <th key={i} style={{
-                        textAlign: i === 6 ? 'right' : 'left', padding: '14px 18px',
+                        textAlign: i === 8 ? 'right' : 'left', padding: '14px 18px',
                         fontSize: 10.5, letterSpacing: '0.08em', textTransform: 'uppercase',
                         color: '#8A8270', fontWeight: 700,
                       }}>{h}</th>
@@ -421,6 +421,12 @@ const HallPricingCom = () => {
                       onMouseEnter={(e) => { e.currentTarget.style.background = '#FCFAF4'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
+                      <td style={{ padding: '14px 18px', fontSize: 13, color: '#8A8270', fontWeight: 500 }}>
+                        #{p.id}
+                      </td>
+                      <td style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
+                        {p.hall || '—'}
+                      </td>
                       <td style={{ padding: '14px 18px', fontSize: 13.5, color: ink, fontWeight: 500 }}>
                         {p.hall_name_en || p.hall?.name_en || '—'}
                       </td>
