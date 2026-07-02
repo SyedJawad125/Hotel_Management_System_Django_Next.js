@@ -971,7 +971,7 @@ const ReportsCom = () => {
                   <thead>
                     <tr style={{ borderBottom: `1px solid ${line}` }}>
                       <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#A39C8A', fontWeight: 700 }}>
-                        #
+                        Customer Id
                       </th>
                       <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#A39C8A', fontWeight: 700 }}>
                         Customer Name
