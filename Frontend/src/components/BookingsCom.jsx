@@ -234,19 +234,10 @@ const BookingsCom = () => {
   };
 
   const openEdit = (booking) => {
-    console.log('Editing booking:', booking); // Debug log
-    
-    // Set the editing booking first
     setEditingBooking(booking);
-    
-    // Get hall ID - try multiple possible locations
-    const hallId = booking.hall?.id || booking.hall_id || booking.hallId || '';
-    const customerId = booking.customer?.id || booking.customer_id || booking.customerId || '';
-    
-    // Populate the form with all the data
     setForm({
-      hall: hallId,
-      customer: customerId,
+      hall: booking.hall || '',
+      customer: booking.customer || '',
       event_type_en: booking.event_type_en || '',
       event_type_ar: booking.event_type_ar || '',
       date: booking.date || '',
@@ -254,8 +245,6 @@ const BookingsCom = () => {
       status: booking.status || 'pending',
       total: booking.total || '',
     });
-    
-    // Open the modal
     setModalOpen(true);
   };
 
