@@ -441,9 +441,9 @@ const RolesCom = () => {
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 880 }}>
                 <thead>
                   <tr style={{ background: ivory, borderBottom: `1px solid ${line}` }}>
-                    {['Role', 'Code', 'Description', 'Permissions', ''].map((h, i) => (
+                    {['ID', 'Role', 'Code', 'Description', 'Permissions', ''].map((h, i) => (
                       <th key={i} style={{
-                        textAlign: i === 4 ? 'right' : 'left', padding: '14px 18px',
+                        textAlign: i === 5 ? 'right' : 'left', padding: '14px 18px',
                         fontSize: 10.5, letterSpacing: '0.08em', textTransform: 'uppercase',
                         color: '#8A8270', fontWeight: 700,
                       }}>{h}</th>
@@ -461,6 +461,9 @@ const RolesCom = () => {
                       onMouseEnter={(e) => { e.currentTarget.style.background = '#FCFAF4'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
+                      <td style={{ padding: '14px 18px', fontSize: 13, color: '#8A8270', fontWeight: 500 }}>
+                        #{r.id}
+                      </td>
                       <td style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                           <div style={{

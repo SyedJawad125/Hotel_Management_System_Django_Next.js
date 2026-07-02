@@ -1411,9 +1411,9 @@ const EmployeeCom = () => {
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 880 }}>
                 <thead>
                   <tr style={{ background: ivory, borderBottom: `1px solid ${line}` }}>
-                    {['Employee', 'Email', 'Mobile', 'Role', 'Status', 'Actions'].map((h, i) => (
+                    {['ID', 'Employee', 'Email', 'Mobile', 'Role', 'Status', 'Actions'].map((h, i) => (
                       <th key={i} style={{
-                        textAlign: i === 5 ? 'center' : 'left', padding: '14px 18px',
+                        textAlign: i === 6 ? 'center' : 'left', padding: '14px 18px',
                         fontSize: 10.5, letterSpacing: '0.08em', textTransform: 'uppercase',
                         color: '#8A8270', fontWeight: 700,
                       }}>{h}</th>
@@ -1431,6 +1431,9 @@ const EmployeeCom = () => {
                       onMouseEnter={(ev) => { ev.currentTarget.style.background = '#FCFAF4'; }}
                       onMouseLeave={(ev) => { ev.currentTarget.style.background = 'transparent'; }}
                     >
+                      <td style={{ padding: '14px 18px', fontSize: 13, color: '#8A8270', fontWeight: 500 }}>
+                        #{e.id}
+                      </td>
                       <td style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                           <Avatar 
@@ -1440,9 +1443,6 @@ const EmployeeCom = () => {
                           <div>
                             <div style={{ fontFamily: displayFont, fontSize: 17, fontWeight: 600, color: ink }}>
                               {e.full_name || `${e.first_name || ''} ${e.last_name || ''}`.trim()}
-                            </div>
-                            <div style={{ fontSize: 11, color: '#A39C8A', fontFamily: bodyFont }}>
-                              ID: #{e.id}
                             </div>
                           </div>
                         </div>
