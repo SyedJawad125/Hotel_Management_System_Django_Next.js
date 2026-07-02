@@ -199,7 +199,7 @@ const BookingServicesCom = () => {
   const openEdit = (service) => {
     setEditingService(service);
     setForm({
-      booking: service.booking?.id || '',
+      booking: service.booking || '',
       service_name_en: service.service_name_en || '',
       service_name_ar: service.service_name_ar || '',
       cost: service.cost || '',
@@ -365,9 +365,9 @@ const BookingServicesCom = () => {
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
                 <thead>
                   <tr style={{ background: ivory, borderBottom: `1px solid ${line}` }}>
-                    {['Booking', 'Service Name', 'Cost', 'Notes', ''].map((h, i) => (
+                    {['ID', 'Booking ID', 'Booking Code', 'Service Name', 'Cost', 'Notes', 'Created By', ''].map((h, i) => (
                       <th key={i} style={{
-                        textAlign: i === 4 ? 'right' : 'left', padding: '14px 18px',
+                        textAlign: i === 7 ? 'right' : 'left', padding: '14px 18px',
                         fontSize: 10.5, letterSpacing: '0.08em', textTransform: 'uppercase',
                         color: '#8A8270', fontWeight: 700,
                       }}>{h}</th>
@@ -385,12 +385,18 @@ const BookingServicesCom = () => {
                       onMouseEnter={(e) => { e.currentTarget.style.background = '#FCFAF4'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
+                      <td style={{ padding: '14px 18px', fontSize: 13, color: '#8A8270', fontWeight: 500 }}>
+                        #{s.id}
+                      </td>
+                      <td style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
+                        {s.booking || '—'}
+                      </td>
                       <td style={{ padding: '14px 18px' }}>
                         <span style={{
                           fontSize: 11.5, fontFamily: 'monospace', color: '#8A8270',
                           background: ivory, border: `1px solid ${lineSoft}`, borderRadius: 6, padding: '3px 8px',
                           fontWeight: 600,
-                        }}>{s.booking?.booking_code || '—'}</span>
+                        }}>{s.booking_code || '—'}</span>
                       </td>
                       <td style={{ padding: '14px 18px', fontSize: 13.5, color: ink, fontWeight: 500 }}>
                         <div>{s.service_name_en || '—'}</div>
@@ -401,6 +407,9 @@ const BookingServicesCom = () => {
                       </td>
                       <td style={{ padding: '14px 18px', fontSize: 12.5, color: '#A39C8A', maxWidth: 200 }}>
                         {s.notes || '—'}
+                      </td>
+                      <td style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
+                        {s.created_by_name || '—'}
                       </td>
                       <td style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
