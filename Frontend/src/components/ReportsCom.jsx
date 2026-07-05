@@ -1100,7 +1100,7 @@ const bodyFont = "'DM Sans', sans-serif";
 const responsiveStyles = `
   * { box-sizing: border-box; }
   @media (max-width: 768px) {
-    .rp-container { padding: 20px 14px 40px !important; width: 100% !important; max-width: 100% !important; }
+    .rp-container { padding: 65px 14px 40px !important; width: 100% !important; max-width: 100% !important; }
     .rp-title { font-size: 28px !important; }
 
     .rp-filter-card { padding: 16px !important; }

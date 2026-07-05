@@ -747,9 +747,10 @@ const displayFont = "'Cormorant Garamond', serif";
 const bodyFont = "'DM Sans', sans-serif";
 
 /* Mobile-only overrides. Desktop (>768px) layout is untouched.
-   NOTE: attribute selectors use single quotes to avoid a hydration
-   mismatch caused by Next.js escaping double quotes differently on
-   server vs client inside <style> text content. */
+   NOTE: avoid '>' and '"' characters inside this string — Next.js can
+   escape them differently on server vs client inside <style> text
+   content, causing a hydration mismatch. Use plain class selectors
+   instead of child combinators or attribute-quote selectors. */
 const responsiveStyles = `
   * { box-sizing: border-box; }
   @media (max-width: 768px) {
@@ -760,6 +761,9 @@ const responsiveStyles = `
 
     .bk-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
     .bk-stat-value { font-size: 20px !important; }
+
+    /* Outer table panel turns ivory so the white row-cards stand out against it */
+    .bk-table-wrap { background: #F6F3EC !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
 
     /* Responsive table: hide header row, stack each cell as a labeled block */
     .bk-table thead { display: none !important; }
@@ -773,6 +777,7 @@ const responsiveStyles = `
       margin-bottom: 14px !important;
       padding: 12px 14px !important;
       background: #FFFFFF !important;
+      box-shadow: 0 4px 14px -8px rgba(38,35,29,0.18) !important;
     }
     .bk-table td {
       padding: 8px 0 !important;
@@ -793,9 +798,13 @@ const responsiveStyles = `
       text-align: left;
       flex-shrink: 0;
     }
-    .bk-table td[data-label='Date & Time'] > div { align-items: flex-end !important; }
+    .bk-table td[data-label='Date & Time'] { align-items: flex-start !important; }
+    .bk-table td[data-label='Date & Time'] .bk-datetime-col { align-items: flex-end !important; }
     .bk-table td[data-label=''] { justify-content: flex-end !important; }
     .bk-table td[data-label='']::before { display: none !important; }
+
+    /* Pagination bar inside the (now transparent) table wrap */
+    .bk-pagination { background: #FFFFFF !important; border: 1px solid rgba(198,164,63,0.12) !important; border-radius: 14px !important; }
   }
 `;
 
@@ -1185,7 +1194,7 @@ const BookingsCom = () => {
 
         {/* Table */}
         {!loading && filteredRecords.length > 0 && (
-          <div style={{
+          <div className="bk-table-wrap" style={{
             background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 18,
             overflow: 'hidden', boxShadow: shadowCard,
           }}>
@@ -1233,7 +1242,7 @@ const BookingsCom = () => {
                         {b.event_type_en || '—'}
                       </td>
                       <td data-label="Date & Time" style={{ padding: '14px 18px', fontSize: 12.5, color: ink }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <div className="bk-datetime-col" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <Calendar size={13} color="#A39C8A" />
                             {b.date || '—'}
@@ -1290,7 +1299,7 @@ const BookingsCom = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div style={{
+              <div className="bk-pagination" style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '14px 20px', borderTop: `1px solid ${lineSoft}`, background: ivory,
               }}>

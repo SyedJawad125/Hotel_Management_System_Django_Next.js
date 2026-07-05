@@ -1916,7 +1916,11 @@ const shadowCard = '0 10px 30px -12px rgba(38,35,29,0.10)';
 const displayFont = "'Cormorant Garamond', serif";
 const bodyFont = "'DM Sans', sans-serif";
 
-/* Mobile-only overrides. Desktop (>768px) layout is untouched. */
+/* Mobile-only overrides. Desktop (>768px) layout is untouched.
+   NOTE: avoid '>' and '"' characters inside this string — Next.js can
+   escape them differently on server vs client inside <style> text
+   content, causing a hydration mismatch. Use plain class selectors
+   instead of child combinators or attribute-quote selectors. */
 const responsiveStyles = `
   * { box-sizing: border-box; }
   @media (max-width: 768px) {
@@ -1932,6 +1936,9 @@ const responsiveStyles = `
     .hv-viewtoggle { width: 100% !important; }
     .hv-viewtoggle button { flex: 1 1 50% !important; justify-content: center !important; }
 
+    /* Outer table panel turns ivory so the white row-cards stand out against it */
+    .hv-table-wrap { background: #F6F3EC !important; border: none !important; box-shadow: none !important; }
+
     /* Responsive table: hide header row, stack each cell as a labeled block */
     .hv-table thead { display: none !important; }
     .hv-table, .hv-table tbody, .hv-table tr, .hv-table td {
@@ -1939,11 +1946,12 @@ const responsiveStyles = `
     }
     .hv-table { min-width: 0 !important; }
     .hv-table tr {
-      border: 1px solid ${lineSoft} !important;
+      border: 1px solid rgba(198,164,63,0.12) !important;
       border-radius: 14px !important;
       margin-bottom: 14px !important;
       padding: 12px 14px !important;
       background: #FFFFFF !important;
+      box-shadow: 0 4px 14px -8px rgba(38,35,29,0.18) !important;
     }
     .hv-table td {
       padding: 8px 0 !important;
@@ -1962,12 +1970,15 @@ const responsiveStyles = `
       color: #8A8270;
       font-weight: 700;
       text-align: left;
-        flex-shrink: 0;
-      }
+      flex-shrink: 0;
+    }
     .hv-table td[data-label='Hall'] { align-items: flex-start !important; }
-    .hv-table td[data-label='Hall'] > div { justify-content: flex-end !important; text-align: right !important; }
+    .hv-table td[data-label='Hall'] .hv-hall-col { justify-content: flex-end !important; text-align: right !important; }
     .hv-table td[data-label=''] { justify-content: flex-end !important; }
     .hv-table td[data-label='']::before { display: none !important; }
+
+    /* Pagination bar inside the (now transparent) table wrap */
+    .hv-pagination { background: #FFFFFF !important; border: 1px solid rgba(198,164,63,0.12) !important; border-radius: 14px !important; }
   }
 `;
 
@@ -2457,7 +2468,7 @@ const HallsVenuesCom = () => {
 
         {/* Table or Cards */}
         {!loading && filteredRecords.length > 0 && viewMode === 'table' && (
-          <div style={{
+          <div className="hv-table-wrap" style={{
             background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 18,
             overflow: 'hidden', boxShadow: shadowCard,
           }}>
@@ -2489,7 +2500,7 @@ const HallsVenuesCom = () => {
                         #{h.id}
                       </td>
                         <td data-label="Hall" style={{ padding: '14px 18px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <div className="hv-hall-col" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                             {h.image ? (
                               <img
                                 src={h.image}
@@ -2573,7 +2584,7 @@ const HallsVenuesCom = () => {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div style={{
+                <div className="hv-pagination" style={{
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                   padding: '14px 20px', borderTop: `1px solid ${lineSoft}`, background: ivory,
                 }}>
