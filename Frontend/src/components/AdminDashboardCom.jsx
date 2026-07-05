@@ -574,18 +574,57 @@ const bodyFont = "'DM Sans', sans-serif";
 /* Mobile-only overrides. Everything here is scoped to max-width: 768px
    and uses !important solely to beat the inline styles below — the
    desktop/laptop layout (anything above 768px) is completely untouched. */
+// const responsiveStyles = `
+//   @media (max-width: 768px) {
+//     .db-container { padding: 20px 16px 40px !important; }
+//     .db-eyebrow { font-size: 10px !important; margin-bottom: 6px !important; }
+//     .db-title { font-size: 26px !important; }
+//     .db-subtitle { font-size: 12.5px !important; margin-top: 6px !important; }
+
+//     .db-stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; margin-bottom: 22px !important; }
+//     .db-stat-card { padding: 14px 16px !important; border-radius: 12px !important; }
+//     .db-stat-card .db-stat-icon { width: 32px !important; height: 32px !important; border-radius: 8px !important; }
+//     .db-stat-card .db-stat-value { font-size: 22px !important; }
+//     .db-stat-card .db-stat-title { font-size: 9.5px !important; }
+
+//     .db-status-grid { grid-template-columns: 1fr !important; gap: 12px !important; margin-bottom: 22px !important; }
+//     .db-status-card { padding: 16px !important; }
+
+//     .db-main-grid { grid-template-columns: 1fr !important; gap: 16px !important; margin-bottom: 22px !important; }
+//     .db-panel { padding: 16px !important; }
+//     .db-panel-title { font-size: 18px !important; }
+
+//     .db-item-row { flex-wrap: wrap !important; gap: 10px !important; }
+//     .db-item-amount { text-align: left !important; }
+
+//     .db-quick-actions { padding: 16px !important; }
+//     .db-quick-actions-title { font-size: 18px !important; margin-bottom: 12px !important; }
+//     .db-qa-buttons { gap: 10px !important; }
+//     .db-qa-btn { flex: 1 1 calc(50% - 5px) !important; justify-content: center !important; padding: 12px 10px !important; }
+//   }
+
+//   @media (max-width: 420px) {
+//     .db-stats-grid { grid-template-columns: 1fr 1fr !important; }
+//     .db-qa-btn { flex: 1 1 100% !important; }
+//   }
+// `;
+
+
+
+
 const responsiveStyles = `
+  * { box-sizing: border-box; }
   @media (max-width: 768px) {
-    .db-container { padding: 20px 16px 40px !important; }
+    .db-container { padding: 65px 14px 40px !important; width: 100% !important; max-width: 100% !important; }
     .db-eyebrow { font-size: 10px !important; margin-bottom: 6px !important; }
-    .db-title { font-size: 26px !important; }
+    .db-title { font-size: 24px !important; }
     .db-subtitle { font-size: 12.5px !important; margin-top: 6px !important; }
 
-    .db-stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; margin-bottom: 22px !important; }
-    .db-stat-card { padding: 14px 16px !important; border-radius: 12px !important; }
-    .db-stat-card .db-stat-icon { width: 32px !important; height: 32px !important; border-radius: 8px !important; }
-    .db-stat-card .db-stat-value { font-size: 22px !important; }
-    .db-stat-card .db-stat-title { font-size: 9.5px !important; }
+    .db-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; margin-bottom: 22px !important; }
+    .db-stat-card { padding: 12px 12px !important; border-radius: 12px !important; min-width: 0 !important; }
+    .db-stat-card .db-stat-icon { width: 28px !important; height: 28px !important; border-radius: 8px !important; }
+    .db-stat-card .db-stat-value { font-size: 18px !important; }
+    .db-stat-card .db-stat-title { font-size: 9px !important; }
 
     .db-status-grid { grid-template-columns: 1fr !important; gap: 12px !important; margin-bottom: 22px !important; }
     .db-status-card { padding: 16px !important; }
@@ -604,7 +643,7 @@ const responsiveStyles = `
   }
 
   @media (max-width: 420px) {
-    .db-stats-grid { grid-template-columns: 1fr 1fr !important; }
+    .db-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
     .db-qa-btn { flex: 1 1 100% !important; }
   }
 `;
@@ -701,45 +740,48 @@ const AdminDashboardCom = () => {
   };
 
   const StatCard = ({ title, value, icon: Icon, color, trend, trendUp }) => (
-    <div className="db-stat-card" style={{
-      background: '#FFFFFF',
-      border: `1px solid ${line}`,
-      borderRadius: 16,
-      padding: '20px 24px',
-      boxShadow: shadowCard,
-      transition: 'all 0.2s',
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <span className="db-stat-title" style={{ fontSize: 11, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#A39C8A', fontWeight: 600 }}>
-            {title}
-          </span>
-        </div>
-        <div className="db-stat-icon" style={{
-          width: 40, height: 40, borderRadius: 10,
-          background: color ? `${color}15` : `${gold}15`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Icon size={20} color={color || gold} />
-        </div>
+  <div className="db-stat-card" style={{
+    background: '#FFFFFF',
+    border: `1px solid ${line}`,
+    borderRadius: 16,
+    padding: '20px 24px',
+    boxShadow: shadowCard,
+    transition: 'all 0.2s',
+  }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <span className="db-stat-title" style={{ fontSize: 11, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#A39C8A', fontWeight: 600 }}>
+          {title}
+        </span>
       </div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
-        <div className="db-stat-value" style={{ fontFamily: displayFont, fontSize: 32, fontWeight: 600, color: ink }}>
-          {typeof value === 'number' ? value.toLocaleString() : value}
-        </div>
-        {trend && (
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 4,
-            fontSize: 12, fontWeight: 600,
-            color: trendUp ? '#3D7A45' : '#B23B3B',
-          }}>
-            {trendUp ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-            {trend}
-          </div>
-        )}
+      <div className="db-stat-icon" style={{
+        width: 40, height: 40, borderRadius: 10,
+        background: color ? `${color}15` : `${gold}15`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <Icon size={20} color={color || gold} />
       </div>
     </div>
-  );
+
+    {/* 👇 THIS is the line to change 👇 */}
+    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 2, marginBottom: 8, minWidth: 0 }}>
+      <div className="db-stat-value" style={{ fontFamily: displayFont, fontSize: 32, fontWeight: 600, color: ink, minWidth: 0 }}>
+        {typeof value === 'number' ? value.toLocaleString() : value}
+      </div>
+      {trend && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 4,
+          fontSize: 12, fontWeight: 600,
+          color: trendUp ? '#3D7A45' : '#B23B3B',
+          whiteSpace: 'nowrap',
+        }}>
+          {trendUp ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+          {trend}
+        </div>
+      )}
+    </div>
+  </div>
+);
 
   if (loading) {
     return (
@@ -757,7 +799,8 @@ const AdminDashboardCom = () => {
   }
 
   return (
-    <div style={{ width: '100%', minHeight: '100%', background: '#F6F3EC', fontFamily: bodyFont }}>
+    // <div style={{ width: '100%', minHeight: '100%', background: '#F6F3EC', fontFamily: bodyFont }}>
+    <div style={{ width: '100%', maxWidth: '100vw', minHeight: '100%', background: '#F6F3EC', fontFamily: bodyFont, overflowX: 'hidden', boxSizing: 'border-box' }}>
       <ToastContainer position="top-right" autoClose={3000} theme="light" className="mt-16" />
       <style>{responsiveStyles}</style>
 
