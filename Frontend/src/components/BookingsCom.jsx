@@ -753,7 +753,7 @@ const bodyFont = "'DM Sans', sans-serif";
 const responsiveStyles = `
   * { box-sizing: border-box; }
   @media (max-width: 768px) {
-    .bk-container { padding: 20px 14px 40px !important; width: 100% !important; max-width: 100% !important; }
+    .bk-container { padding: 65px 14px 40px !important; width: 100% !important; max-width: 100% !important; }
     .bk-header { flex-direction: column !important; align-items: flex-start !important; }
     .bk-title { font-size: 28px !important; }
     .bk-header button { width: 100% !important; justify-content: center !important; }

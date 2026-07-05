@@ -1920,7 +1920,7 @@ const bodyFont = "'DM Sans', sans-serif";
 const responsiveStyles = `
   * { box-sizing: border-box; }
   @media (max-width: 768px) {
-    .hv-container { padding: 56px 14px 40px !important; width: 100% !important; max-width: 100% !important; }
+    .hv-container { padding: 65px 14px 40px !important; width: 100% !important; max-width: 100% !important; }
     .hv-header { flex-direction: column !important; align-items: flex-start !important; }
     .hv-title { font-size: 28px !important; }
     .hv-header-actions { width: 100% !important; }
