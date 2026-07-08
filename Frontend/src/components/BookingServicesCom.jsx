@@ -21,6 +21,62 @@ const shadowCard = '0 10px 30px -12px rgba(38,35,29,0.10)';
 const displayFont = "'Cormorant Garamond', serif";
 const bodyFont = "'DM Sans', sans-serif";
 
+/* ── Responsive styles ───────────────────────────────────────────────────── */
+const responsiveStyles = `
+  * { box-sizing: border-box; }
+  @media (max-width: 768px) {
+    .bs-container { padding: 65px 14px 40px !important; width: 100% !important; max-width: 100% !important; }
+    .bs-header { flex-direction: column !important; align-items: flex-start !important; }
+    .bs-title { font-size: 28px !important; }
+    .bs-header-actions { width: 100% !important; }
+    .bs-header-actions button { flex: 1 1 auto !important; justify-content: center !important; }
+
+    .bs-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+
+    /* Outer table panel turns ivory so the white row-cards stand out against it */
+    .bs-table-wrap { background: #F6F3EC !important; border: none !important; box-shadow: none !important; }
+
+    /* Responsive table: hide header row, stack each cell as a labeled block */
+    .bs-table thead { display: none !important; }
+    .bs-table, .bs-table tbody, .bs-table tr, .bs-table td {
+      display: block !important; width: 100% !important;
+    }
+    .bs-table { min-width: 0 !important; }
+    .bs-table tr {
+      border: 1px solid rgba(198,164,63,0.12) !important;
+      border-radius: 14px !important;
+      margin-bottom: 14px !important;
+      padding: 12px 14px !important;
+      background: #FFFFFF !important;
+      box-shadow: 0 4px 14px -8px rgba(38,35,29,0.18) !important;
+    }
+    .bs-table td {
+      padding: 8px 0 !important;
+      border-bottom: none !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      gap: 10px !important;
+      text-align: right !important;
+    }
+    .bs-table td::before {
+      content: attr(data-label);
+      font-size: 10.5px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #8A8270;
+      font-weight: 700;
+      text-align: left;
+      flex-shrink: 0;
+    }
+    .bs-table td.bs-empty-label { justify-content: flex-end !important; }
+    .bs-table td.bs-empty-label::before { display: none !important; }
+
+    /* Pagination bar inside the (now transparent) table wrap */
+    .bs-pagination { background: #FFFFFF !important; border: 1px solid rgba(198,164,63,0.12) !important; border-radius: 14px !important; }
+  }
+`;
+
 /* ── Small building blocks ───────────────────────────────────────────── */
 
 const FormGroup = ({ label, required, children, hint }) => (
@@ -268,23 +324,25 @@ const BookingServicesCom = () => {
 
   return (
     <div style={{ width: '100%', minHeight: '100%', background: '#F6F3EC', fontFamily: bodyFont }}>
+      <style>{responsiveStyles}</style>
       <ToastContainer position="top-right" autoClose={3000} theme="light" className="mt-16" />
 
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '36px 28px 60px' }}>
+      <div className="bs-container" style={{ maxWidth: 1280, margin: '0 auto', padding: '36px 28px 60px' }}>
 
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 18, marginBottom: 30 }}>
+        <div className="bs-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 18, marginBottom: 30 }}>
           <div>
             <div style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: gold, fontWeight: 700, marginBottom: 8 }}>
               Service Management
             </div>
-            <h1 style={{ fontFamily: displayFont, fontSize: 38, color: ink, fontWeight: 600, lineHeight: 1.1 }}>
+            <h1 className="bs-title" style={{ fontFamily: displayFont, fontSize: 38, color: ink, fontWeight: 600, lineHeight: 1.1 }}>
               Booking Services
             </h1>
           </div>
 
-          {permissions.create_booking_service && (
-            <button
+          <div className="bs-header-actions" style={{ display: 'flex' }}>
+            {permissions.create_booking_service && (
+              <button
               onClick={openCreate}
               style={{
                 display: 'flex', alignItems: 'center', gap: 8,
@@ -299,11 +357,12 @@ const BookingServicesCom = () => {
               <Plus size={16} color={gold} />
               Add Service
             </button>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Stat strip */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 26 }}>
+        <div className="bs-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 26 }}>
           {[
             { label: 'Total Services', value: totalServices, icon: Package },
             { label: 'Total Cost', value: `SAR ${totalCost.toLocaleString()}`, icon: DollarSign, accent: goldDeep },
@@ -357,12 +416,12 @@ const BookingServicesCom = () => {
 
         {/* Table */}
         {!loading && filteredRecords.length > 0 && (
-          <div style={{
+          <div className="bs-table-wrap" style={{
             background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 18,
             overflow: 'hidden', boxShadow: shadowCard,
           }}>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
+              <table className="bs-table" style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
                 <thead>
                   <tr style={{ background: ivory, borderBottom: `1px solid ${line}` }}>
                     {['ID', 'Booking ID', 'Booking Code', 'Service Name', 'Cost', 'Notes', 'Created By', ''].map((h, i) => (
@@ -385,33 +444,33 @@ const BookingServicesCom = () => {
                       onMouseEnter={(e) => { e.currentTarget.style.background = '#FCFAF4'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
-                      <td style={{ padding: '14px 18px', fontSize: 13, color: '#8A8270', fontWeight: 500 }}>
+                      <td data-label="ID" style={{ padding: '14px 18px', fontSize: 13, color: '#8A8270', fontWeight: 500 }}>
                         #{s.id}
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
+                      <td data-label="Booking ID" style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
                         {s.booking || '—'}
                       </td>
-                      <td style={{ padding: '14px 18px' }}>
+                      <td data-label="Booking Code" style={{ padding: '14px 18px' }}>
                         <span style={{
                           fontSize: 11.5, fontFamily: 'monospace', color: '#8A8270',
                           background: ivory, border: `1px solid ${lineSoft}`, borderRadius: 6, padding: '3px 8px',
                           fontWeight: 600,
                         }}>{s.booking_code || '—'}</span>
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 13.5, color: ink, fontWeight: 500 }}>
+                      <td data-label="Service Name" style={{ padding: '14px 18px', fontSize: 13.5, color: ink, fontWeight: 500 }}>
                         <div>{s.service_name_en || '—'}</div>
                         {s.service_name_ar && <div style={{ fontSize: 12, color: '#A39C8A' }}>{s.service_name_ar}</div>}
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 13.5, color: goldDeep, fontWeight: 600 }}>
+                      <td data-label="Cost" style={{ padding: '14px 18px', fontSize: 13.5, color: goldDeep, fontWeight: 600 }}>
                         SAR {Number(s.cost || 0).toLocaleString()}
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 12.5, color: '#A39C8A', maxWidth: 200 }}>
+                      <td data-label="Notes" style={{ padding: '14px 18px', fontSize: 12.5, color: '#A39C8A', maxWidth: 200 }}>
                         {s.notes || '—'}
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
+                      <td data-label="Created By" style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
                         {s.created_by_name || '—'}
                       </td>
-                      <td style={{ padding: '14px 18px' }}>
+                      <td data-label="" className="bs-empty-label" style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                           {permissions.update_booking_service && (
                             <button
@@ -451,7 +510,7 @@ const BookingServicesCom = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div style={{
+              <div className="bs-pagination" style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '14px 20px', borderTop: `1px solid ${lineSoft}`, background: ivory,
               }}>

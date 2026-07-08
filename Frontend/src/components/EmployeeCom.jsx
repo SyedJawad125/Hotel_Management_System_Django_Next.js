@@ -771,6 +771,62 @@ const shadowCard = '0 10px 30px -12px rgba(38,35,29,0.10)';
 const displayFont = "'Cormorant Garamond', serif";
 const bodyFont = "'DM Sans', sans-serif";
 
+/* ── Responsive styles ───────────────────────────────────────────────────── */
+const responsiveStyles = `
+  * { box-sizing: border-box; }
+  @media (max-width: 768px) {
+    .em-container { padding: 65px 14px 40px !important; width: 100% !important; max-width: 100% !important; }
+    .em-header { flex-direction: column !important; align-items: flex-start !important; }
+    .em-title { font-size: 28px !important; }
+    .em-header-actions { width: 100% !important; flex-wrap: wrap !important; }
+    .em-header-actions button { flex: 1 1 auto !important; justify-content: center !important; }
+
+    .em-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+
+    /* Outer table panel turns ivory so the white row-cards stand out against it */
+    .em-table-wrap { background: #F6F3EC !important; border: none !important; box-shadow: none !important; }
+
+    /* Responsive table: hide header row, stack each cell as a labeled block */
+    .em-table thead { display: none !important; }
+    .em-table, .em-table tbody, .em-table tr, .em-table td {
+      display: block !important; width: 100% !important;
+    }
+    .em-table { min-width: 0 !important; }
+    .em-table tr {
+      border: 1px solid rgba(198,164,63,0.12) !important;
+      border-radius: 14px !important;
+      margin-bottom: 14px !important;
+      padding: 12px 14px !important;
+      background: #FFFFFF !important;
+      box-shadow: 0 4px 14px -8px rgba(38,35,29,0.18) !important;
+    }
+    .em-table td {
+      padding: 8px 0 !important;
+      border-bottom: none !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      gap: 10px !important;
+      text-align: right !important;
+    }
+    .em-table td::before {
+      content: attr(data-label);
+      font-size: 10.5px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #8A8270;
+      font-weight: 700;
+      text-align: left;
+      flex-shrink: 0;
+    }
+    .em-table td.em-actions-cell { justify-content: flex-end !important; }
+    .em-table td.em-actions-cell::before { display: none !important; }
+
+    /* Pagination bar inside the (now transparent) table wrap */
+    .em-pagination { background: #FFFFFF !important; border: 1px solid rgba(198,164,63,0.12) !important; border-radius: 14px !important; }
+  }
+`;
+
 /* ── Components ── */
 
 const StatusPill = ({ status, deactivated }) => {
@@ -1282,22 +1338,23 @@ const EmployeeCom = () => {
 
   return (
     <div style={{ width: '100%', minHeight: '100%', background: '#F6F3EC', fontFamily: bodyFont }}>
+      <style>{responsiveStyles}</style>
       <ToastContainer position="top-right" autoClose={3000} theme="light" className="mt-16" />
 
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '36px 28px 60px' }}>
+      <div className="em-container" style={{ maxWidth: 1280, margin: '0 auto', padding: '36px 28px 60px' }}>
 
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 18, marginBottom: 30 }}>
+        <div className="em-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 18, marginBottom: 30 }}>
           <div>
             <div style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: gold, fontWeight: 700, marginBottom: 8 }}>
               Staff Management
             </div>
-            <h1 style={{ fontFamily: displayFont, fontSize: 38, color: ink, fontWeight: 600, lineHeight: 1.1 }}>
+            <h1 className="em-title" style={{ fontFamily: displayFont, fontSize: 38, color: ink, fontWeight: 600, lineHeight: 1.1 }}>
               Employees
             </h1>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div className="em-header-actions" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <button
               onClick={exportCSV}
               style={{
@@ -1341,7 +1398,7 @@ const EmployeeCom = () => {
         </div>
 
         {/* Stat strip */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 26 }}>
+        <div className="em-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 26 }}>
           {[
             { label: 'Total Employees', value: totalEmployees, icon: Users2 },
             { label: 'Active', value: activeCount, icon: ShieldCheck, accent: '#3D7A45' },
@@ -1403,12 +1460,12 @@ const EmployeeCom = () => {
 
         {/* Table */}
         {!loading && filteredRecords.length > 0 && (
-          <div style={{
+          <div className="em-table-wrap" style={{
             background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 18,
             overflow: 'hidden', boxShadow: shadowCard,
           }}>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 880 }}>
+              <table className="em-table" style={{ width: '100%', borderCollapse: 'collapse', minWidth: 880 }}>
                 <thead>
                   <tr style={{ background: ivory, borderBottom: `1px solid ${line}` }}>
                     {['ID', 'Employee', 'Email', 'Mobile', 'Role', 'Status', 'Actions'].map((h, i) => (
@@ -1431,10 +1488,10 @@ const EmployeeCom = () => {
                       onMouseEnter={(ev) => { ev.currentTarget.style.background = '#FCFAF4'; }}
                       onMouseLeave={(ev) => { ev.currentTarget.style.background = 'transparent'; }}
                     >
-                      <td style={{ padding: '14px 18px', fontSize: 13, color: '#8A8270', fontWeight: 500 }}>
+                      <td data-label="ID" style={{ padding: '14px 18px', fontSize: 13, color: '#8A8270', fontWeight: 500 }}>
                         #{e.id}
                       </td>
-                      <td style={{ padding: '14px 18px' }}>
+                      <td data-label="Employee" style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                           <Avatar 
                             src={e.profile_image} 
@@ -1447,21 +1504,21 @@ const EmployeeCom = () => {
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 12.5, color: ink }}>
+                      <td data-label="Email" style={{ padding: '14px 18px', fontSize: 12.5, color: ink }}>
                         {e.email || e.username ? (
                           <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <Mail size={13} color="#A39C8A" /> {e.email || e.username}
                           </span>
                         ) : <span style={{ color: '#C8C0AC' }}>—</span>}
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
+                      <td data-label="Mobile" style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
                         {e.mobile ? (
                           <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <Phone size={13} color="#A39C8A" /> {e.mobile}
                           </span>
                         ) : <span style={{ color: '#C8C0AC' }}>—</span>}
                       </td>
-                      <td style={{ padding: '14px 18px' }}>
+                      <td data-label="Role" style={{ padding: '14px 18px' }}>
                         {e.role?.name ? (
                           <span style={{
                             fontSize: 11.5, color: goldDeep, background: 'rgba(198,164,63,0.12)',
@@ -1469,10 +1526,10 @@ const EmployeeCom = () => {
                           }}>{e.role.name}</span>
                         ) : <span style={{ color: '#C8C0AC', fontSize: 13 }}>—</span>}
                       </td>
-                      <td style={{ padding: '14px 18px' }}>
+                      <td data-label="Status" style={{ padding: '14px 18px' }}>
                         <StatusPill status={e.status} deactivated={e.deactivated} />
                       </td>
-                      <td style={{ padding: '14px 18px', textAlign: 'center' }}>
+                      <td data-label="Actions" className="em-actions-cell" style={{ padding: '14px 18px', textAlign: 'center' }}>
                         {/* ⭐ Action Dropdown Button */}
                         <div style={{ position: 'relative', display: 'inline-block' }}>
                           <button
@@ -1523,7 +1580,7 @@ const EmployeeCom = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div style={{
+              <div className="em-pagination" style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '14px 20px', borderTop: `1px solid ${lineSoft}`, background: ivory,
               }}>
