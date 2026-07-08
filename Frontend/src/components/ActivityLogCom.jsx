@@ -28,9 +28,11 @@ const responsiveStyles = `
     .al-container { padding: 65px 14px 40px !important; width: 100% !important; max-width: 100% !important; }
     .al-title { font-size: 28px !important; }
     .al-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 12px !important; }
-    .al-stats-card { padding: 18px !important; }
-    .al-stats-icon { width: 36px !important; height: 36px !important; }
+    .al-stats-card { padding: 14px !important; }
+    .al-stats-content { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+    .al-stats-icon { width: 36px !important; height: 36px !important; margin-bottom: 4px !important; }
     .al-stats-value { font-size: 26px !important; }
+    .al-stats-label { margin-top: 2px !important; text-align: left !important; }
     .al-filter-bar { flex-direction: column !important; align-items: flex-start !important; }
     .al-filter-buttons { width: 100% !important; flex-wrap: wrap !important; }
     .al-filter-buttons button { flex: 1 1 auto !important; min-width: 80px !important; }
@@ -121,7 +123,7 @@ const ActivityLogCom = () => {
             background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 16,
             padding: 24, boxShadow: shadowCard,
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <div className="al-stats-content" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
               <div className="al-stats-icon" style={{
                 width: 44, height: 44, borderRadius: 12,
                 background: `${gold}15`, display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -132,7 +134,7 @@ const ActivityLogCom = () => {
                 <p className="al-stats-value" style={{ fontSize: 32, color: ink, fontWeight: 600, lineHeight: 1 }}>
                   {activities.length}
                 </p>
-                <p style={{ fontSize: 12, color: '#A39C8A', fontWeight: 600, letterSpacing: '0.05em' }}>
+                <p className="al-stats-label" style={{ fontSize: 12, color: '#A39C8A', fontWeight: 600, letterSpacing: '0.05em' }}>
                   Total Activities
                 </p>
               </div>
@@ -143,7 +145,7 @@ const ActivityLogCom = () => {
             background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 16,
             padding: 24, boxShadow: shadowCard,
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <div className="al-stats-content" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
               <div className="al-stats-icon" style={{
                 width: 44, height: 44, borderRadius: 12,
                 background: '#EAF4EA', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -154,7 +156,7 @@ const ActivityLogCom = () => {
                 <p className="al-stats-value" style={{ fontSize: 32, color: ink, fontWeight: 600, lineHeight: 1 }}>
                   {iconCounts['✅'] || 0}
                 </p>
-                <p style={{ fontSize: 12, color: '#A39C8A', fontWeight: 600, letterSpacing: '0.05em' }}>
+                <p className="al-stats-label" style={{ fontSize: 12, color: '#A39C8A', fontWeight: 600, letterSpacing: '0.05em' }}>
                   Completed
                 </p>
               </div>
@@ -165,7 +167,7 @@ const ActivityLogCom = () => {
             background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 16,
             padding: 24, boxShadow: shadowCard,
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <div className="al-stats-content" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
               <div className="al-stats-icon" style={{
                 width: 44, height: 44, borderRadius: 12,
                 background: '#FEF7E6', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -176,7 +178,7 @@ const ActivityLogCom = () => {
                 <p className="al-stats-value" style={{ fontSize: 32, color: ink, fontWeight: 600, lineHeight: 1 }}>
                   {iconCounts['⚠️'] || 0}
                 </p>
-                <p style={{ fontSize: 12, color: '#A39C8A', fontWeight: 600, letterSpacing: '0.05em' }}>
+                <p className="al-stats-label" style={{ fontSize: 12, color: '#A39C8A', fontWeight: 600, letterSpacing: '0.05em' }}>
                   Warnings
                 </p>
               </div>
@@ -187,7 +189,7 @@ const ActivityLogCom = () => {
             background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 16,
             padding: 24, boxShadow: shadowCard,
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <div className="al-stats-content" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
               <div className="al-stats-icon" style={{
                 width: 44, height: 44, borderRadius: 12,
                 background: '#E8F5E9', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -198,7 +200,7 @@ const ActivityLogCom = () => {
                 <p className="al-stats-value" style={{ fontSize: 32, color: ink, fontWeight: 600, lineHeight: 1 }}>
                   {new Set(activities.map(a => a.user_name).filter(Boolean)).size}
                 </p>
-                <p style={{ fontSize: 12, color: '#A39C8A', fontWeight: 600, letterSpacing: '0.05em' }}>
+                <p className="al-stats-label" style={{ fontSize: 12, color: '#A39C8A', fontWeight: 600, letterSpacing: '0.05em' }}>
                   Active Users
                 </p>
               </div>
