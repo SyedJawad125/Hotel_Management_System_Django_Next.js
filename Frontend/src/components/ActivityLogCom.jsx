@@ -21,6 +21,27 @@ const shadowCard = '0 10px 30px -12px rgba(38,35,29,0.10)';
 const displayFont = "'Cormorant Garamond', serif";
 const bodyFont = "'DM Sans', sans-serif";
 
+/* ── Responsive styles ───────────────────────────────────────────────────── */
+const responsiveStyles = `
+  * { box-sizing: border-box; }
+  @media (max-width: 768px) {
+    .al-container { padding: 65px 14px 40px !important; width: 100% !important; max-width: 100% !important; }
+    .al-title { font-size: 28px !important; }
+    .al-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 12px !important; }
+    .al-stats-card { padding: 18px !important; }
+    .al-stats-icon { width: 36px !important; height: 36px !important; }
+    .al-stats-value { font-size: 26px !important; }
+    .al-filter-bar { flex-direction: column !important; align-items: flex-start !important; }
+    .al-filter-buttons { width: 100% !important; flex-wrap: wrap !important; }
+    .al-filter-buttons button { flex: 1 1 auto !important; min-width: 80px !important; }
+    .al-activity-card { padding: 16px !important; flex-direction: column !important; }
+    .al-activity-icon { width: 40px !important; height: 40px !important; }
+    .al-activity-icon span { font-size: 20px !important; }
+    .al-activity-header { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+    .al-activity-time { width: 100% !important; justify-content: flex-start !important; }
+  }
+`;
+
 const ActivityLogCom = () => {
   const [loading, setLoading] = useState(false);
   const [activities, setActivities] = useState([]);
@@ -73,16 +94,17 @@ const ActivityLogCom = () => {
 
   return (
     <div style={{ width: '100%', minHeight: '100%', background: '#F6F3EC', fontFamily: bodyFont }}>
+      <style>{responsiveStyles}</style>
       <ToastContainer position="top-right" autoClose={3000} theme="light" className="mt-16" />
 
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '36px 28px 60px' }}>
+      <div className="al-container" style={{ maxWidth: 1200, margin: '0 auto', padding: '36px 28px 60px' }}>
 
         {/* Header */}
         <div style={{ marginBottom: 36 }}>
           <div style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: gold, fontWeight: 700, marginBottom: 8 }}>
             System Logs
           </div>
-          <h1 style={{ fontFamily: displayFont, fontSize: 42, color: ink, fontWeight: 600, lineHeight: 1.1 }}>
+          <h1 className="al-title" style={{ fontFamily: displayFont, fontSize: 42, color: ink, fontWeight: 600, lineHeight: 1.1 }}>
             Activity Log
           </h1>
           <p style={{ color: '#A39C8A', fontSize: 14, marginTop: 8 }}>
@@ -91,23 +113,23 @@ const ActivityLogCom = () => {
         </div>
 
         {/* Stats Cards */}
-        <div style={{
+        <div className="al-stats-grid" style={{
           display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
           gap: 20, marginBottom: 32,
         }}>
-          <div style={{
+          <div className="al-stats-card" style={{
             background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 16,
             padding: 24, boxShadow: shadowCard,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-              <div style={{
+              <div className="al-stats-icon" style={{
                 width: 44, height: 44, borderRadius: 12,
                 background: `${gold}15`, display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <Activity size={22} color={gold} />
               </div>
               <div>
-                <p style={{ fontSize: 32, color: ink, fontWeight: 600, lineHeight: 1 }}>
+                <p className="al-stats-value" style={{ fontSize: 32, color: ink, fontWeight: 600, lineHeight: 1 }}>
                   {activities.length}
                 </p>
                 <p style={{ fontSize: 12, color: '#A39C8A', fontWeight: 600, letterSpacing: '0.05em' }}>
@@ -117,19 +139,19 @@ const ActivityLogCom = () => {
             </div>
           </div>
 
-          <div style={{
+          <div className="al-stats-card" style={{
             background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 16,
             padding: 24, boxShadow: shadowCard,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-              <div style={{
+              <div className="al-stats-icon" style={{
                 width: 44, height: 44, borderRadius: 12,
                 background: '#EAF4EA', display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <CheckCircle size={22} color="#3D7A45" />
               </div>
               <div>
-                <p style={{ fontSize: 32, color: ink, fontWeight: 600, lineHeight: 1 }}>
+                <p className="al-stats-value" style={{ fontSize: 32, color: ink, fontWeight: 600, lineHeight: 1 }}>
                   {iconCounts['✅'] || 0}
                 </p>
                 <p style={{ fontSize: 12, color: '#A39C8A', fontWeight: 600, letterSpacing: '0.05em' }}>
@@ -139,19 +161,19 @@ const ActivityLogCom = () => {
             </div>
           </div>
 
-          <div style={{
+          <div className="al-stats-card" style={{
             background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 16,
             padding: 24, boxShadow: shadowCard,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-              <div style={{
+              <div className="al-stats-icon" style={{
                 width: 44, height: 44, borderRadius: 12,
                 background: '#FEF7E6', display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <AlertCircle size={22} color="#B8860B" />
               </div>
               <div>
-                <p style={{ fontSize: 32, color: ink, fontWeight: 600, lineHeight: 1 }}>
+                <p className="al-stats-value" style={{ fontSize: 32, color: ink, fontWeight: 600, lineHeight: 1 }}>
                   {iconCounts['⚠️'] || 0}
                 </p>
                 <p style={{ fontSize: 12, color: '#A39C8A', fontWeight: 600, letterSpacing: '0.05em' }}>
@@ -161,19 +183,19 @@ const ActivityLogCom = () => {
             </div>
           </div>
 
-          <div style={{
+          <div className="al-stats-card" style={{
             background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 16,
             padding: 24, boxShadow: shadowCard,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-              <div style={{
+              <div className="al-stats-icon" style={{
                 width: 44, height: 44, borderRadius: 12,
                 background: '#E8F5E9', display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <Users size={22} color="#3D7A45" />
               </div>
               <div>
-                <p style={{ fontSize: 32, color: ink, fontWeight: 600, lineHeight: 1 }}>
+                <p className="al-stats-value" style={{ fontSize: 32, color: ink, fontWeight: 600, lineHeight: 1 }}>
                   {new Set(activities.map(a => a.user_name).filter(Boolean)).size}
                 </p>
                 <p style={{ fontSize: 12, color: '#A39C8A', fontWeight: 600, letterSpacing: '0.05em' }}>
@@ -189,12 +211,12 @@ const ActivityLogCom = () => {
           background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 16,
           padding: 20, marginBottom: 24, boxShadow: shadowCard,
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+          <div className="al-filter-bar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <Filter size={20} color={gold} />
               <span style={{ fontSize: 14, color: ink, fontWeight: 600 }}>Filter by Type:</span>
             </div>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <div className="al-filter-buttons" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <button
                 onClick={() => setFilterType('all')}
                 style={{
@@ -278,6 +300,7 @@ const ActivityLogCom = () => {
                 return (
                   <div
                     key={index}
+                    className="al-activity-card"
                     style={{
                       display: 'flex', alignItems: 'flex-start', gap: 16,
                       padding: 20, borderRadius: 14,
@@ -286,7 +309,7 @@ const ActivityLogCom = () => {
                       transition: 'all 0.2s',
                     }}
                   >
-                    <div style={{
+                    <div className="al-activity-icon" style={{
                       width: 48, height: 48, borderRadius: 12,
                       background: `${gold}12`, display: 'flex', alignItems: 'center', justifyContent: 'center',
                       flexShrink: 0,
@@ -294,11 +317,11 @@ const ActivityLogCom = () => {
                       <span style={{ fontSize: 24 }}>{activity.icon}</span>
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
+                      <div className="al-activity-header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
                         <h3 style={{ fontSize: 15, color: ink, fontWeight: 600, lineHeight: 1.4 }}>
                           {activity.text}
                         </h3>
-                        <div style={{
+                        <div className="al-activity-time" style={{
                           display: 'flex', alignItems: 'center', gap: 6,
                           padding: '4px 10px', borderRadius: 999,
                           background: `${gold}08`, color: gold,

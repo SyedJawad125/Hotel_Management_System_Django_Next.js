@@ -21,6 +21,62 @@ const shadowCard = '0 10px 30px -12px rgba(38,35,29,0.10)';
 const displayFont = "'Cormorant Garamond', serif";
 const bodyFont = "'DM Sans', sans-serif";
 
+/* ── Responsive styles ───────────────────────────────────────────────────── */
+const responsiveStyles = `
+  * { box-sizing: border-box; }
+  @media (max-width: 768px) {
+    .cu-container { padding: 65px 14px 40px !important; width: 100% !important; max-width: 100% !important; }
+    .cu-header { flex-direction: column !important; align-items: flex-start !important; }
+    .cu-title { font-size: 28px !important; }
+    .cu-header-actions { width: 100% !important; flex-wrap: wrap !important; }
+    .cu-header-actions button { flex: 1 1 auto !important; justify-content: center !important; }
+
+    .cu-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+
+    /* Outer table panel turns ivory so the white row-cards stand out against it */
+    .cu-table-wrap { background: #F6F3EC !important; border: none !important; box-shadow: none !important; }
+
+    /* Responsive table: hide header row, stack each cell as a labeled block */
+    .cu-table thead { display: none !important; }
+    .cu-table, .cu-table tbody, .cu-table tr, .cu-table td {
+      display: block !important; width: 100% !important;
+    }
+    .cu-table { min-width: 0 !important; }
+    .cu-table tr {
+      border: 1px solid rgba(198,164,63,0.12) !important;
+      border-radius: 14px !important;
+      margin-bottom: 14px !important;
+      padding: 12px 14px !important;
+      background: #FFFFFF !important;
+      box-shadow: 0 4px 14px -8px rgba(38,35,29,0.18) !important;
+    }
+    .cu-table td {
+      padding: 8px 0 !important;
+      border-bottom: none !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      gap: 10px !important;
+      text-align: right !important;
+    }
+    .cu-table td::before {
+      content: attr(data-label);
+      font-size: 10.5px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #8A8270;
+      font-weight: 700;
+      text-align: left;
+      flex-shrink: 0;
+    }
+    .cu-table td.cu-empty-label { justify-content: flex-end !important; }
+    .cu-table td.cu-empty-label::before { display: none !important; }
+
+    /* Pagination bar inside the (now transparent) table wrap */
+    .cu-pagination { background: #FFFFFF !important; border: 1px solid rgba(198,164,63,0.12) !important; border-radius: 14px !important; }
+  }
+`;
+
 /* ── Small building blocks ───────────────────────────────────────────── */
 
 const FormGroup = ({ label, required, children, hint }) => (
@@ -279,22 +335,23 @@ const CustomersCom = () => {
 
   return (
     <div style={{ width: '100%', minHeight: '100%', background: '#F6F3EC', fontFamily: bodyFont }}>
+      <style>{responsiveStyles}</style>
       <ToastContainer position="top-right" autoClose={3000} theme="light" className="mt-16" />
 
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '36px 28px 60px' }}>
+      <div className="cu-container" style={{ maxWidth: 1280, margin: '0 auto', padding: '36px 28px 60px' }}>
 
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 18, marginBottom: 30 }}>
+        <div className="cu-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 18, marginBottom: 30 }}>
           <div>
             <div style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: gold, fontWeight: 700, marginBottom: 8 }}>
               Guest Management
             </div>
-            <h1 style={{ fontFamily: displayFont, fontSize: 38, color: ink, fontWeight: 600, lineHeight: 1.1 }}>
+            <h1 className="cu-title" style={{ fontFamily: displayFont, fontSize: 38, color: ink, fontWeight: 600, lineHeight: 1.1 }}>
               Customers
             </h1>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div className="cu-header-actions" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <button
               onClick={exportCSV}
               style={{
@@ -329,7 +386,7 @@ const CustomersCom = () => {
         </div>
 
         {/* Stat strip */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 26 }}>
+        <div className="cu-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 26 }}>
           {[
             { label: 'Total Customers', value: totalCustomers, icon: Users2 },
             { label: 'Total Bookings', value: totalBookings, icon: CalendarCheck2, accent: '#3D7A45' },
@@ -383,12 +440,12 @@ const CustomersCom = () => {
 
         {/* Table */}
         {!loading && filteredRecords.length > 0 && (
-          <div style={{
+          <div className="cu-table-wrap" style={{
             background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 18,
             overflow: 'hidden', boxShadow: shadowCard,
           }}>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 840 }}>
+              <table className="cu-table" style={{ width: '100%', borderCollapse: 'collapse', minWidth: 840 }}>
                 <thead>
                   <tr style={{ background: ivory, borderBottom: `1px solid ${line}` }}>
                     {['ID', 'Customer', 'Mobile', 'Email', 'Bookings', 'Total Spent', ''].map((h, i) => (
@@ -411,10 +468,10 @@ const CustomersCom = () => {
                       onMouseEnter={(e) => { e.currentTarget.style.background = '#FCFAF4'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
-                      <td style={{ padding: '14px 18px', fontSize: 13, color: '#8A8270', fontWeight: 500 }}>
+                      <td data-label="ID" style={{ padding: '14px 18px', fontSize: 13, color: '#8A8270', fontWeight: 500 }}>
                         #{c.id}
                       </td>
-                      <td style={{ padding: '14px 18px' }}>
+                      <td data-label="Customer" style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                           <div style={{
                             width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
@@ -430,25 +487,25 @@ const CustomersCom = () => {
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
+                      <td data-label="Mobile" style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
                         {c.mobile ? (
                           <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <Phone size={13} color="#A39C8A" /> {c.mobile}
                           </span>
                         ) : <span style={{ color: '#C8C0AC' }}>—</span>}
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 12.5, color: ink }}>
+                      <td data-label="Email" style={{ padding: '14px 18px', fontSize: 12.5, color: ink }}>
                         {c.email ? (
                           <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <Mail size={13} color="#A39C8A" /> {c.email}
                           </span>
                         ) : <span style={{ color: '#C8C0AC' }}>—</span>}
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 13.5, color: ink, fontWeight: 600 }}>{c.bookings_count ?? 0}</td>
-                      <td style={{ padding: '14px 18px', fontSize: 13.5, color: goldDeep, fontWeight: 600 }}>
+                      <td data-label="Bookings" style={{ padding: '14px 18px', fontSize: 13.5, color: ink, fontWeight: 600 }}>{c.bookings_count ?? 0}</td>
+                      <td data-label="Total Spent" style={{ padding: '14px 18px', fontSize: 13.5, color: goldDeep, fontWeight: 600 }}>
                         SAR {Number(c.total_spent || 0).toLocaleString()}
                       </td>
-                      <td style={{ padding: '14px 18px' }}>
+                      <td data-label="" className="cu-empty-label" style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                           {permissions.update_customer && (
                             <button
@@ -488,7 +545,7 @@ const CustomersCom = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div style={{
+              <div className="cu-pagination" style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '14px 20px', borderTop: `1px solid ${lineSoft}`, background: ivory,
               }}>
