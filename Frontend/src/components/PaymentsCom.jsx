@@ -21,6 +21,66 @@ const shadowCard = '0 10px 30px -12px rgba(38,35,29,0.10)';
 const displayFont = "'Cormorant Garamond', serif";
 const bodyFont = "'DM Sans', sans-serif";
 
+/* ── Responsive styles ───────────────────────────────────────────────────── */
+/* NOTE: avoid '>' and '"' characters inside this string — Next.js can
+   escape them differently on server vs client inside <style> text
+   content, causing a hydration mismatch. Use plain class selectors
+   instead of child combinators or attribute-quote selectors. */
+const responsiveStyles = `
+  * { box-sizing: border-box; }
+  @media (max-width: 768px) {
+    .pm-container { padding: 65px 14px 40px !important; width: 100% !important; max-width: 100% !important; }
+    .pm-header { flex-direction: column !important; align-items: flex-start !important; }
+    .pm-title { font-size: 28px !important; }
+    .pm-header-actions { width: 100% !important; }
+    .pm-header-actions button { flex: 1 1 auto !important; justify-content: center !important; }
+
+    .pm-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+
+    /* Outer table panel turns ivory so the white row-cards stand out against it */
+    .pm-table-wrap { background: #F6F3EC !important; border: none !important; box-shadow: none !important; }
+
+    /* Responsive table: hide header row, stack each cell as a labeled block */
+    .pm-table thead { display: none !important; }
+    .pm-table, .pm-table tbody, .pm-table tr, .pm-table td {
+      display: block !important; width: 100% !important;
+    }
+    .pm-table { min-width: 0 !important; }
+    .pm-table tr {
+      border: 1px solid rgba(198,164,63,0.12) !important;
+      border-radius: 14px !important;
+      margin-bottom: 14px !important;
+      padding: 12px 14px !important;
+      background: #FFFFFF !important;
+      box-shadow: 0 4px 14px -8px rgba(38,35,29,0.18) !important;
+    }
+    .pm-table td {
+      padding: 8px 0 !important;
+      border-bottom: none !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      gap: 10px !important;
+      text-align: right !important;
+    }
+    .pm-table td::before {
+      content: attr(data-label);
+      font-size: 10.5px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #8A8270;
+      font-weight: 700;
+      text-align: left;
+      flex-shrink: 0;
+    }
+    .pm-table td.pm-empty-label { justify-content: flex-end !important; }
+    .pm-table td.pm-empty-label::before { display: none !important; }
+
+    /* Pagination bar inside the (now transparent) table wrap */
+    .pm-pagination { background: #FFFFFF !important; border: 1px solid rgba(198,164,63,0.12) !important; border-radius: 14px !important; }
+  }
+`;
+
 /* ── Small building blocks ───────────────────────────────────────────── */
 
 const MethodPill = ({ method }) => {
@@ -303,12 +363,13 @@ const PaymentsCom = () => {
 
   return (
     <div style={{ width: '100%', minHeight: '100%', background: '#F6F3EC', fontFamily: bodyFont }}>
+      <style>{responsiveStyles}</style>
       <ToastContainer position="top-right" autoClose={3000} theme="light" className="mt-16" />
 
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '36px 28px 60px' }}>
+      <div className="pm-container" style={{ maxWidth: 1280, margin: '0 auto', padding: '36px 28px 60px' }}>
 
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 18, marginBottom: 30 }}>
+        <div className="pm-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 18, marginBottom: 30 }}>
           <div>
             <div style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: gold, fontWeight: 700, marginBottom: 8 }}>
               Financial Management
@@ -318,27 +379,29 @@ const PaymentsCom = () => {
             </h1>
           </div>
 
-          {permissions.create_payment && (
-            <button
-              onClick={openCreate}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                background: ink, color: '#FBF6E8', border: 'none',
-                padding: '13px 24px', borderRadius: 12, fontSize: 13, fontWeight: 600,
-                cursor: 'pointer', letterSpacing: '0.02em', boxShadow: '0 8px 18px -6px rgba(38,35,29,0.35)',
-                transition: 'transform 0.15s, box-shadow 0.15s',
-              }}
+          <div className="pm-header-actions" style={{ display: 'flex', gap: 12 }}>
+            {permissions.create_payment && (
+              <button
+                onClick={openCreate}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  background: ink, color: '#FBF6E8', border: 'none',
+                  padding: '13px 24px', borderRadius: 12, fontSize: 13, fontWeight: 600,
+                  cursor: 'pointer', letterSpacing: '0.02em', boxShadow: '0 8px 18px -6px rgba(38,35,29,0.35)',
+                  transition: 'transform 0.15s, box-shadow 0.15s',
+                }}
               onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.transform = ''; }}
             >
               <Plus size={16} color={gold} />
-              Record Payment
-            </button>
-          )}
+                Record Payment
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Stat strip */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 26 }}>
+        <div className="pm-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 26 }}>
           {[
             { label: 'Total Payments', value: totalPayments, icon: DollarSign },
             { label: 'Total Amount', value: `SAR ${totalAmount.toLocaleString()}`, icon: Wallet, accent: goldDeep },
@@ -393,12 +456,12 @@ const PaymentsCom = () => {
 
         {/* Table */}
         {!loading && filteredRecords.length > 0 && (
-          <div style={{
+          <div className="pm-table-wrap" style={{
             background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 18,
             overflow: 'hidden', boxShadow: shadowCard,
           }}>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
+              <table className="pm-table" style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
                 <thead>
                   <tr style={{ background: ivory, borderBottom: `1px solid ${line}` }}>
                     {['ID', 'Booking ID', 'Booking Code', 'Amount', 'Method', 'Payment Date', 'Notes', 'Created By', ''].map((h, i) => (
@@ -421,39 +484,39 @@ const PaymentsCom = () => {
                       onMouseEnter={(e) => { e.currentTarget.style.background = '#FCFAF4'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
-                      <td style={{ padding: '14px 18px', fontSize: 13, color: '#8A8270', fontWeight: 500 }}>
+                      <td data-label="ID" style={{ padding: '14px 18px', fontSize: 13, color: '#8A8270', fontWeight: 500 }}>
                         #{p.id}
                       </td>
-                      <td style={{ padding: '14px 18px' }}>
+                      <td data-label="Booking ID" style={{ padding: '14px 18px' }}>
                         <span style={{
                           fontSize: 11.5, fontFamily: 'monospace', color: '#8A8270',
                           background: ivory, border: `1px solid ${lineSoft}`, borderRadius: 6, padding: '3px 8px',
                           fontWeight: 600,
                         }}>{p.booking || '—'}</span>
                       </td>
-                      <td style={{ padding: '14px 18px' }}>
+                      <td data-label="Booking Code" style={{ padding: '14px 18px' }}>
                         <span style={{
                           fontSize: 11.5, fontFamily: 'monospace', color: '#8A8270',
                           background: ivory, border: `1px solid ${lineSoft}`, borderRadius: 6, padding: '3px 8px',
                           fontWeight: 600,
                         }}>{p.booking_code || '—'}</span>
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 13.5, color: goldDeep, fontWeight: 600 }}>
+                      <td data-label="Amount" style={{ padding: '14px 18px', fontSize: 13.5, color: goldDeep, fontWeight: 600 }}>
                         SAR {Number(p.amount || 0).toLocaleString()}
                       </td>
-                      <td style={{ padding: '14px 18px' }}>
+                      <td data-label="Method" style={{ padding: '14px 18px' }}>
                         <MethodPill method={p.payment_method_display || p.payment_method} />
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 13.5, color: ink }}>
+                      <td data-label="Payment Date" style={{ padding: '14px 18px', fontSize: 13.5, color: ink }}>
                         {p.payment_date || '—'}
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 12.5, color: '#A39C8A', maxWidth: 200 }}>
+                      <td data-label="Notes" style={{ padding: '14px 18px', fontSize: 12.5, color: '#A39C8A', maxWidth: 200 }}>
                         {p.notes || '—'}
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
+                      <td data-label="Created By" style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
                         {p.created_by_name || '—'}
                       </td>
-                      <td style={{ padding: '14px 18px' }}>
+                      <td data-label="" className="pm-empty-label" style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                           {permissions.update_payment && (
                             <button
@@ -493,7 +556,7 @@ const PaymentsCom = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div style={{
+              <div className="pm-pagination" style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '14px 20px', borderTop: `1px solid ${lineSoft}`, background: ivory,
               }}>

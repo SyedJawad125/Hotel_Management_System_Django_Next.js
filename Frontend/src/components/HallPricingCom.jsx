@@ -21,6 +21,62 @@ const shadowCard = '0 10px 30px -12px rgba(38,35,29,0.10)';
 const displayFont = "'Cormorant Garamond', serif";
 const bodyFont = "'DM Sans', sans-serif";
 
+/* ── Responsive styles ───────────────────────────────────────────────────── */
+const responsiveStyles = `
+  * { box-sizing: border-box; }
+  @media (max-width: 768px) {
+    .hp-container { padding: 65px 14px 40px !important; width: 100% !important; max-width: 100% !important; }
+    .hp-header { flex-direction: column !important; align-items: flex-start !important; }
+    .hp-title { font-size: 28px !important; }
+    .hp-header-actions { width: 100% !important; }
+    .hp-header-actions button { flex: 1 1 auto !important; justify-content: center !important; }
+
+    .hp-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+
+    /* Outer table panel turns ivory so the white row-cards stand out against it */
+    .hp-table-wrap { background: #F6F3EC !important; border: none !important; box-shadow: none !important; }
+
+    /* Responsive table: hide header row, stack each cell as a labeled block */
+    .hp-table thead { display: none !important; }
+    .hp-table, .hp-table tbody, .hp-table tr, .hp-table td {
+      display: block !important; width: 100% !important;
+    }
+    .hp-table { min-width: 0 !important; }
+    .hp-table tr {
+      border: 1px solid rgba(198,164,63,0.12) !important;
+      border-radius: 14px !important;
+      margin-bottom: 14px !important;
+      padding: 12px 14px !important;
+      background: #FFFFFF !important;
+      box-shadow: 0 4px 14px -8px rgba(38,35,29,0.18) !important;
+    }
+    .hp-table td {
+      padding: 8px 0 !important;
+      border-bottom: none !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      gap: 10px !important;
+      text-align: right !important;
+    }
+    .hp-table td::before {
+      content: attr(data-label);
+      font-size: 10.5px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #8A8270;
+      font-weight: 700;
+      text-align: left;
+      flex-shrink: 0;
+    }
+    .hp-table td.hp-empty-label { justify-content: flex-end !important; }
+    .hp-table td.hp-empty-label::before { display: none !important; }
+
+    /* Pagination bar inside the (now transparent) table wrap */
+    .hp-pagination { background: #FFFFFF !important; border: 1px solid rgba(198,164,63,0.12) !important; border-radius: 14px !important; }
+  }
+`;
+
 /* ── Small building blocks ───────────────────────────────────────────── */
 
 const TimeSlotPill = ({ slot }) => {
@@ -303,23 +359,25 @@ const HallPricingCom = () => {
 
   return (
     <div style={{ width: '100%', minHeight: '100%', background: '#F6F3EC', fontFamily: bodyFont }}>
+      <style>{responsiveStyles}</style>
       <ToastContainer position="top-right" autoClose={3000} theme="light" className="mt-16" />
 
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '36px 28px 60px' }}>
+      <div className="hp-container" style={{ maxWidth: 1280, margin: '0 auto', padding: '36px 28px 60px' }}>
 
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 18, marginBottom: 30 }}>
+        <div className="hp-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 18, marginBottom: 30 }}>
           <div>
             <div style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: gold, fontWeight: 700, marginBottom: 8 }}>
               Pricing Management
             </div>
-            <h1 style={{ fontFamily: displayFont, fontSize: 38, color: ink, fontWeight: 600, lineHeight: 1.1 }}>
+            <h1 className="hp-title" style={{ fontFamily: displayFont, fontSize: 38, color: ink, fontWeight: 600, lineHeight: 1.1 }}>
               Hall Pricing
             </h1>
           </div>
 
-          {permissions.create_hall_pricing && (
-            <button
+          <div className="hp-header-actions" style={{ display: 'flex' }}>
+            {permissions.create_hall_pricing && (
+              <button
               onClick={openCreate}
               style={{
                 display: 'flex', alignItems: 'center', gap: 8,
@@ -334,11 +392,12 @@ const HallPricingCom = () => {
               <Plus size={16} color={gold} />
               New Pricing
             </button>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Stat strip */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 26 }}>
+        <div className="hp-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 26 }}>
           {[
             { label: 'Total Rules', value: totalPricing, icon: DollarSign },
             { label: 'Avg Price', value: `SAR ${avgPrice.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, icon: MapPin, accent: goldDeep },
@@ -393,12 +452,12 @@ const HallPricingCom = () => {
 
         {/* Table */}
         {!loading && filteredRecords.length > 0 && (
-          <div style={{
+          <div className="hp-table-wrap" style={{
             background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 18,
             overflow: 'hidden', boxShadow: shadowCard,
           }}>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
+              <table className="hp-table" style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
                 <thead>
                   <tr style={{ background: ivory, borderBottom: `1px solid ${line}` }}>
                     {['ID', 'Hall ID', 'Hall', 'Time Slot', 'Base Price', 'Valid From', 'Valid Until', 'Created By', ''].map((h, i) => (
@@ -421,31 +480,31 @@ const HallPricingCom = () => {
                       onMouseEnter={(e) => { e.currentTarget.style.background = '#FCFAF4'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
-                      <td style={{ padding: '14px 18px', fontSize: 13, color: '#8A8270', fontWeight: 500 }}>
+                      <td data-label="ID" style={{ padding: '14px 18px', fontSize: 13, color: '#8A8270', fontWeight: 500 }}>
                         #{p.id}
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
+                      <td data-label="Hall ID" style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
                         {p.hall || '—'}
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 13.5, color: ink, fontWeight: 500 }}>
+                      <td data-label="Hall" style={{ padding: '14px 18px', fontSize: 13.5, color: ink, fontWeight: 500 }}>
                         {p.hall_name_en || p.hall?.name_en || '—'}
                       </td>
-                      <td style={{ padding: '14px 18px' }}>
+                      <td data-label="Time Slot" style={{ padding: '14px 18px' }}>
                         <TimeSlotPill slot={p.time_slot_display || p.time_slot} />
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 13.5, color: goldDeep, fontWeight: 600 }}>
+                      <td data-label="Base Price" style={{ padding: '14px 18px', fontSize: 13.5, color: goldDeep, fontWeight: 600 }}>
                         SAR {Number(p.base_price || 0).toLocaleString()}
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 13.5, color: ink }}>
+                      <td data-label="Valid From" style={{ padding: '14px 18px', fontSize: 13.5, color: ink }}>
                         {p.valid_from || '—'}
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 13.5, color: ink }}>
+                      <td data-label="Valid Until" style={{ padding: '14px 18px', fontSize: 13.5, color: ink }}>
                         {p.valid_until || '—'}
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
+                      <td data-label="Created By" style={{ padding: '14px 18px', fontSize: 13, color: ink }}>
                         {p.created_by_name || '—'}
                       </td>
-                      <td style={{ padding: '14px 18px' }}>
+                      <td data-label="" className="hp-empty-label" style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                           {permissions.update_hall_pricing && (
                             <button
@@ -485,7 +544,7 @@ const HallPricingCom = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div style={{
+              <div className="hp-pagination" style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '14px 20px', borderTop: `1px solid ${lineSoft}`, background: ivory,
               }}>
