@@ -21,6 +21,62 @@ const shadowCard = '0 10px 30px -12px rgba(38,35,29,0.10)';
 const displayFont = "'Cormorant Garamond', serif";
 const bodyFont = "'DM Sans', sans-serif";
 
+/* ── Responsive styles ───────────────────────────────────────────────────── */
+const responsiveStyles = `
+  * { box-sizing: border-box; }
+  @media (max-width: 768px) {
+    .ro-container { padding: 65px 14px 40px !important; width: 100% !important; max-width: 100% !important; }
+    .ro-header { flex-direction: column !important; align-items: flex-start !important; }
+    .ro-title { font-size: 28px !important; }
+    .ro-header-actions { width: 100% !important; flex-wrap: wrap !important; }
+    .ro-header-actions button { flex: 1 1 auto !important; justify-content: center !important; }
+
+    .ro-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+
+    /* Outer table panel turns ivory so the white row-cards stand out against it */
+    .ro-table-wrap { background: #F6F3EC !important; border: none !important; box-shadow: none !important; }
+
+    /* Responsive table: hide header row, stack each cell as a labeled block */
+    .ro-table thead { display: none !important; }
+    .ro-table, .ro-table tbody, .ro-table tr, .ro-table td {
+      display: block !important; width: 100% !important;
+    }
+    .ro-table { min-width: 0 !important; }
+    .ro-table tr {
+      border: 1px solid rgba(198,164,63,0.12) !important;
+      border-radius: 14px !important;
+      margin-bottom: 14px !important;
+      padding: 12px 14px !important;
+      background: #FFFFFF !important;
+      box-shadow: 0 4px 14px -8px rgba(38,35,29,0.18) !important;
+    }
+    .ro-table td {
+      padding: 8px 0 !important;
+      border-bottom: none !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      gap: 10px !important;
+      text-align: right !important;
+    }
+    .ro-table td::before {
+      content: attr(data-label);
+      font-size: 10.5px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #8A8270;
+      font-weight: 700;
+      text-align: left;
+      flex-shrink: 0;
+    }
+    .ro-table td.ro-empty-label { justify-content: flex-end !important; }
+    .ro-table td.ro-empty-label::before { display: none !important; }
+
+    /* Pagination bar inside the (now transparent) table wrap */
+    .ro-pagination { background: #FFFFFF !important; border: 1px solid rgba(198,164,63,0.12) !important; border-radius: 14px !important; }
+  }
+`;
+
 /* ── Small building blocks ───────────────────────────────────────────── */
 
 const FormGroup = ({ label, required, children, hint }) => (
@@ -329,22 +385,23 @@ const RolesCom = () => {
 
   return (
     <div style={{ width: '100%', minHeight: '100%', background: '#F6F3EC', fontFamily: bodyFont }}>
+      <style>{responsiveStyles}</style>
       <ToastContainer position="top-right" autoClose={3000} theme="light" className="mt-16" />
 
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '36px 28px 60px' }}>
+      <div className="ro-container" style={{ maxWidth: 1280, margin: '0 auto', padding: '36px 28px 60px' }}>
 
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 18, marginBottom: 30 }}>
+        <div className="ro-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 18, marginBottom: 30 }}>
           <div>
             <div style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: gold, fontWeight: 700, marginBottom: 8 }}>
               Access Control
             </div>
-            <h1 style={{ fontFamily: displayFont, fontSize: 38, color: ink, fontWeight: 600, lineHeight: 1.1 }}>
+            <h1 className="ro-title" style={{ fontFamily: displayFont, fontSize: 38, color: ink, fontWeight: 600, lineHeight: 1.1 }}>
               Roles
             </h1>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div className="ro-header-actions" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <button
               onClick={exportCSV}
               style={{
@@ -379,7 +436,7 @@ const RolesCom = () => {
         </div>
 
         {/* Stat strip */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 26 }}>
+        <div className="ro-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 26 }}>
           {[
             { label: 'Total Roles', value: totalRoles, icon: Shield },
             { label: 'Permissions Available', value: totalPermissionsAvailable, icon: ShieldCheck, accent: '#3D7A45' },
@@ -433,12 +490,12 @@ const RolesCom = () => {
 
         {/* Table */}
         {!loading && filteredRecords.length > 0 && (
-          <div style={{
+          <div className="ro-table-wrap" style={{
             background: '#FFFFFF', border: `1px solid ${line}`, borderRadius: 18,
             overflow: 'hidden', boxShadow: shadowCard,
           }}>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 880 }}>
+              <table className="ro-table" style={{ width: '100%', borderCollapse: 'collapse', minWidth: 880 }}>
                 <thead>
                   <tr style={{ background: ivory, borderBottom: `1px solid ${line}` }}>
                     {['ID', 'Role', 'Code', 'Description', 'Permissions', ''].map((h, i) => (
@@ -461,10 +518,10 @@ const RolesCom = () => {
                       onMouseEnter={(e) => { e.currentTarget.style.background = '#FCFAF4'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
-                      <td style={{ padding: '14px 18px', fontSize: 13, color: '#8A8270', fontWeight: 500 }}>
+                      <td data-label="ID" style={{ padding: '14px 18px', fontSize: 13, color: '#8A8270', fontWeight: 500 }}>
                         #{r.id}
                       </td>
-                      <td style={{ padding: '14px 18px' }}>
+                      <td data-label="Role" style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                           <div style={{
                             width: 40, height: 40, borderRadius: 10, flexShrink: 0,
@@ -476,14 +533,14 @@ const RolesCom = () => {
                           <div style={{ fontFamily: displayFont, fontSize: 17, fontWeight: 600, color: ink }}>{r.name}</div>
                         </div>
                       </td>
-                      <td style={{ padding: '14px 18px' }}>
+                      <td data-label="Code" style={{ padding: '14px 18px' }}>
                         <span style={{
                           fontSize: 11.5, fontFamily: 'monospace', color: '#8A8270',
                           background: ivory, border: `1px solid ${lineSoft}`, borderRadius: 6, padding: '3px 8px',
                         }}>{r.code_name}</span>
                       </td>
-                      <td style={{ padding: '14px 18px', fontSize: 13, color: ink, maxWidth: 280 }}>{r.description}</td>
-                      <td style={{ padding: '14px 18px' }}>
+                      <td data-label="Description" style={{ padding: '14px 18px', fontSize: 13, color: ink, maxWidth: 280 }}>{r.description}</td>
+                      <td data-label="Permissions" style={{ padding: '14px 18px' }}>
                         {r.permissions && r.permissions.length > 0 ? (
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, maxWidth: 260 }}>
                             {r.permissions.slice(0, 3).map((p) => (
@@ -501,7 +558,7 @@ const RolesCom = () => {
                           </div>
                         ) : <span style={{ color: '#C8C0AC', fontSize: 13 }}>No permissions</span>}
                       </td>
-                      <td style={{ padding: '14px 18px' }}>
+                      <td data-label="" className="ro-empty-label" style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                           {userPermissions.update_role && (
                             <button
@@ -541,7 +598,7 @@ const RolesCom = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div style={{
+              <div className="ro-pagination" style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '14px 20px', borderTop: `1px solid ${lineSoft}`, background: ivory,
               }}>
