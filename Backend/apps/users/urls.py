@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (LoginView, RefreshView, LogoutView, ForgetPasswordView, VerifyLinkView, 
                     ResetPasswordView, VerifyOTPView, PermissionView, EmployeeView, 
-                    EmployeeToggleView, RoleView, AccountActivateView, ChangePasswordView)
+                    EmployeeToggleView, RoleView, AccountActivateView, ChangePasswordView, ProfileView)
 
 urlpatterns = [
     # Authentication endpoints
@@ -9,8 +9,11 @@ urlpatterns = [
     path('v1/refresh/', RefreshView.as_view(), name='refresh-token'),
     path('v1/logout/', LogoutView.as_view(), name='logout'),
 
+    # Profile
+    path('v1/profile/', ProfileView.as_view(), name='profile'),
+
     # Change Password (for logged-in users)
-    path('v1/change/password/', ChangePasswordView.as_view(), name='change-password'),  # Add this line
+    path('v1/change/password/', ChangePasswordView.as_view(), name='change-password'),
 
     # OTP-based Password Reset Flow (New - Recommended)
     path('v1/forget/password/', ForgetPasswordView.as_view(), name='forget-password'),  # Step 1: Request OTP

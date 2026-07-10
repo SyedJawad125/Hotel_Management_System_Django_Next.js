@@ -561,6 +561,47 @@ class ChangePasswordView(APIView):
                 print(f"Direct email also failed: {email_error}")
 
 
+class ProfileView(APIView):
+    """
+    Get current user profile information
+    Endpoint: GET /v1/profile/
+    Authentication required
+    """
+    permission_classes = (IsAuthenticated,)
+    
+    def get(self, request):
+        try:
+            user = request.user
+            user_data = {
+                "id": user.id,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "full_name": user.full_name,
+                "username": user.username,
+                "email": user.email,
+                "mobile": user.mobile,
+                "profile_image": user.profile_image.url if user.profile_image else None,
+                "role": {
+                    "id": user.role.id if user.role else None,
+                    "name": user.role.name if user.role else None,
+                    "code_name": user.role.code_name if user.role else None,
+                } if user.role else None,
+                "is_staff": user.is_staff,
+                "is_superuser": user.is_superuser,
+                "last_login": getattr(user, 'last_login', None),
+                "date_joined": user.created_at,  # Use created_at from TimeStamps
+            }
+            return Response({
+                "status": "SUCCESSFUL",
+                "message": "Profile retrieved successfully",
+                "data": user_data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(str(e))
+            return Response(create_response(str(e)), 
+                          status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 class VerifyLinkView(APIView):
     """Legacy link verification - kept for backward compatibility"""
@@ -674,7 +715,7 @@ class VerifyLinkView(APIView):
 #             send_email.delay(
 #                 PASSWORD_CHANGED_EMAIL_TEMP,  # Use your email template constant
 #                 [user.email], 
-#                 {
+#                 {ProfileView
 #                     "full_name": user.full_name, 
 #                     "timestamp": timezone.now().strftime("%Y-%m-%d %H:%M:%S"),
 #                     "email": user.email,
